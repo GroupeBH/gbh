@@ -1,102 +1,186 @@
-﻿import { Button } from "./ui/button";
+﻿import { useMemo } from "react";
+import { Button } from "./ui/button";
+import { useGetServicesQuery, type Service } from "../store/api";
 
 interface DomainesPageProps {
   onNavigate: (page: string) => void;
 }
 
-export function DomainesPage({ onNavigate }: DomainesPageProps) {
-  const domaines = [
-    {
-      icon: "💼",
-      title: "Conseil stratégique",
-      description:
-        "Accompagnement dans la définition et la mise en œuvre de stratégies efficaces pour particuliers et organisations.",
-      features: ["Audit stratégique", "Plans d'action", "Suivi personnalisé"],
-    },
-    {
-      icon: "🧠",
-      title: "Intelligence opérationnelle",
-      description:
-        "Solutions d'analyse avancée et d'optimisation des processus pour maximiser votre performance.",
-      features: [
-        "Business Intelligence",
-        "Analyse de données",
-        "Optimisation processus",
-      ],
-    },
-    {
-      icon: "💻",
-      title: "Laboratoire numérique",
-      description:
-        "Innovation technologique et transformation digitale adaptées à vos besoins spécifiques.",
-      features: ["Développement sur mesure", "Innovation tech", "Transformation digitale"],
-    },
-    {
-      icon: "👥",
-      title: "Recrutement",
-      description:
-        "Sélection et placement de talents qualifiés pour renforcer vos équipes.",
-      features: ["Sourcing de talents", "Évaluation candidats", "Placement professionnel"],
-    },
-    {
-      icon: "🎓",
-      title: "Formation",
-      description:
-        "Programmes de formation professionnelle pour développer les compétences de vos équipes.",
-      features: ["Formation sur mesure", "Certification", "Coaching professionnel"],
-    },
-    {
-      icon: "📦",
-      title: "Fourniture de biens et services",
-      description:
-        "Approvisionnement en biens meubles et immeubles de qualité pour vos projets.",
-      features: [
-        "Biens meubles",
-        "Biens immeubles",
-        "Équipements professionnels",
-      ],
-    },
-    {
-      icon: "🚀",
-      title: "Entrepreneuriat",
-      description:
-        "Accompagnement complet pour créer, développer et pérenniser votre entreprise.",
-      features: [
-        "Création d'entreprise",
-        "Développement business",
-        "Stratégie de croissance",
-      ],
-    },
-    {
-      icon: "🧾",
-      title: "Fiscalité",
-      description:
-        "Conseil fiscal et optimisation de votre situation fiscale pour particuliers et organisations.",
-      features: ["Conseil fiscal", "Optimisation fiscale", "Conformité réglementaire"],
-    },
-    {
-      icon: "✈️",
-      title: "Voyage",
-      description:
-        "Organisation et conseil pour vos déplacements professionnels et personnels.",
-      features: [
-        "Organisation de voyages",
-        "Conseil visa",
-        "Logistique déplacements",
-      ],
-    },
-    {
-      icon: "🤝",
-      title: "Commission acquisition ou vente",
-      description:
-        "Accompagnement dans toutes vos transactions de biens meubles et immeubles.",
-      features: [
-        "Transactions immobilières",
-        "Évaluation de biens",
-        "Négociation",
-      ],
-    },
+type Domaine = {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  features: string[];
+};
+
+const fallbackDomaines: Domaine[] = [
+  {
+    id: "conseil",
+    icon: "💼",
+    title: "Conseil stratégique",
+    description:
+      "Accompagnement dans la définition et la mise en œuvre de stratégies efficaces pour particuliers et organisations.",
+    features: ["Audit stratégique", "Plans d'action", "Suivi personnalisé"],
+  },
+  {
+    id: "intelligence",
+    icon: "🧠",
+    title: "Intelligence opérationnelle",
+    description:
+      "Solutions d'analyse avancée et d'optimisation des processus pour maximiser votre performance.",
+    features: [
+      "Business Intelligence",
+      "Analyse de données",
+      "Optimisation processus",
+    ],
+  },
+  {
+    id: "numerique",
+    icon: "💻",
+    title: "Laboratoire numérique",
+    description:
+      "Innovation technologique et transformation digitale adaptées à vos besoins spécifiques.",
+    features: [
+      "Développement sur mesure",
+      "Innovation tech",
+      "Transformation digitale",
+    ],
+  },
+  {
+    id: "recrutement",
+    icon: "👥",
+    title: "Recrutement",
+    description:
+      "Sélection et placement de talents qualifiés pour renforcer vos équipes.",
+    features: ["Sourcing de talents", "Évaluation candidats", "Placement professionnel"],
+  },
+  {
+    id: "formation",
+    icon: "🎓",
+    title: "Formation",
+    description:
+      "Programmes de formation professionnelle pour développer les compétences de vos équipes.",
+    features: ["Formation sur mesure", "Certification", "Coaching professionnel"],
+  },
+  {
+    id: "fourniture",
+    icon: "📦",
+    title: "Fourniture de biens et services",
+    description:
+      "Approvisionnement en biens meubles et immeubles de qualité pour vos projets.",
+    features: [
+      "Biens meubles",
+      "Biens immeubles",
+      "Équipements professionnels",
+    ],
+  },
+  {
+    id: "entrepreneuriat",
+    icon: "🚀",
+    title: "Entrepreneuriat",
+    description:
+      "Accompagnement complet pour créer, développer et pérenniser votre entreprise.",
+    features: [
+      "Création d'entreprise",
+      "Développement business",
+      "Stratégie de croissance",
+    ],
+  },
+  {
+    id: "fiscalite",
+    icon: "🧾",
+    title: "Fiscalité",
+    description:
+      "Conseil fiscal et optimisation de votre situation fiscale pour particuliers et organisations.",
+    features: ["Conseil fiscal", "Optimisation fiscale", "Conformité réglementaire"],
+  },
+  {
+    id: "voyage",
+    icon: "✈️",
+    title: "Voyage",
+    description:
+      "Organisation et conseil pour vos déplacements professionnels et personnels.",
+    features: [
+      "Organisation de voyages",
+      "Conseil visa",
+      "Logistique déplacements",
+    ],
+  },
+  {
+    id: "commission",
+    icon: "🤝",
+    title: "Commission acquisition ou vente",
+    description:
+      "Accompagnement dans toutes vos transactions de biens meubles et immeubles.",
+    features: [
+      "Transactions immobilières",
+      "Évaluation de biens",
+      "Négociation",
+    ],
+  },
+];
+
+const iconForService = (service: Service) => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  if (key.includes("conseil")) return "💼";
+  if (key.includes("intelligence")) return "🧠";
+  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
+    return "💻";
+  }
+  if (key.includes("recrutement")) return "👥";
+  if (key.includes("formation")) return "🎓";
+  if (key.includes("fourniture")) return "📦";
+  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
+  if (key.includes("fiscal")) return "🧾";
+  if (key.includes("voyage")) return "✈️";
+  if (key.includes("commission") || key.includes("vente")) return "🤝";
+  return "✨";
+};
+
+const featureForService = (service: Service) => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  if (key.includes("conseil")) return ["Audit stratégique", "Plans d'action", "Suivi personnalisé"];
+  if (key.includes("intelligence")) return [
+    "Business Intelligence",
+    "Analyse de données",
+    "Optimisation processus",
   ];
+  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
+    return ["Développement sur mesure", "Innovation tech", "Transformation digitale"];
+  }
+  if (key.includes("recrutement")) return ["Sourcing de talents", "Évaluation candidats", "Placement professionnel"];
+  if (key.includes("formation")) return ["Formation sur mesure", "Certification", "Coaching professionnel"];
+  if (key.includes("fourniture")) return ["Biens meubles", "Biens immeubles", "Équipements professionnels"];
+  if (key.includes("entrepreneuriat") || key.includes("entreprise")) {
+    return ["Création d'entreprise", "Développement business", "Stratégie de croissance"];
+  }
+  if (key.includes("fiscal")) return ["Conseil fiscal", "Optimisation fiscale", "Conformité réglementaire"];
+  if (key.includes("voyage")) return ["Organisation de voyages", "Conseil visa", "Logistique déplacements"];
+  if (key.includes("commission") || key.includes("vente")) return [
+    "Transactions immobilières",
+    "Évaluation de biens",
+    "Négociation",
+  ];
+  return ["Accompagnement personnalisé", "Expertise dédiée", "Suivi continu"];
+};
+
+export function DomainesPage({ onNavigate }: DomainesPageProps) {
+  const { data, isLoading } = useGetServicesQuery();
+
+  const domaines = useMemo(() => {
+    if (!data?.services?.length) {
+      return fallbackDomaines;
+    }
+
+    return data.services.map((service, index) => ({
+      id: service.id || service._id || service.slug || String(index),
+      icon: iconForService(service),
+      title: service.name,
+      description: service.description,
+      features: featureForService(service),
+    }));
+  }, [data]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -111,10 +195,16 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
           </p>
         </div>
 
+        {isLoading && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Chargement des domaines...
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {domaines.map((domaine, index) => (
+          {domaines.map((domaine) => (
             <div
-              key={index}
+              key={domaine.id}
               className="bg-white border-2 border-gray-200 rounded-2xl p-8 hover:shadow-2xl transition-all hover:border-[var(--gbh-magenta)] group"
             >
               <div
@@ -133,8 +223,8 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
               </p>
 
               <div className="space-y-2 mb-6">
-                {domaine.features.map((feature, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
+                {domaine.features.map((feature) => (
+                  <div key={feature} className="flex items-center gap-2">
                     <div
                       className="w-1.5 h-1.5 rounded-full"
                       style={{ backgroundColor: "var(--gbh-magenta)" }}

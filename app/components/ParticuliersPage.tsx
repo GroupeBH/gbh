@@ -1,15 +1,24 @@
-﻿import { useState } from "react";
+﻿import { useMemo, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { useGetServicesQuery, type Service } from "../store/api";
 
 interface ParticuliersPageProps {
   onNavigate: (page: string) => void;
 }
 
-const domaines = [
+type Domaine = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  keywords: string[];
+};
+
+const fallbackDomaines: Domaine[] = [
   {
-    id: 1,
+    id: "conseil",
     title: "Conseil stratégique",
     description:
       "Accompagnement personnalisé pour vos projets professionnels et personnels",
@@ -17,42 +26,42 @@ const domaines = [
     keywords: ["conseil", "stratégie", "accompagnement"],
   },
   {
-    id: 2,
+    id: "intelligence",
     title: "Intelligence opérationnelle",
     description: "Analyse et optimisation de vos processus",
     icon: "🧠",
     keywords: ["intelligence", "analyse", "optimisation"],
   },
   {
-    id: 3,
+    id: "numerique",
     title: "Laboratoire numérique",
     description: "Solutions numériques et développement technologique",
     icon: "💻",
     keywords: ["numérique", "technologie", "digital", "développement"],
   },
   {
-    id: 4,
+    id: "recrutement",
     title: "Recrutement",
     description: "Aide au recrutement et placement professionnel",
     icon: "👥",
     keywords: ["recrutement", "emploi", "carrière"],
   },
   {
-    id: 5,
+    id: "formation",
     title: "Formation",
     description: "Formations professionnelles et développement de compétences",
     icon: "🎓",
     keywords: ["formation", "apprentissage", "compétences"],
   },
   {
-    id: 6,
+    id: "fourniture",
     title: "Fourniture de biens",
     description: "Fourniture de biens meubles et immeubles",
     icon: "📦",
     keywords: ["fourniture", "biens", "matériel"],
   },
   {
-    id: 7,
+    id: "entrepreneuriat",
     title: "Entrepreneuriat",
     description:
       "Accompagnement à la création et au développement d'entreprise",
@@ -60,7 +69,7 @@ const domaines = [
     keywords: ["entrepreneuriat", "startup", "entreprise", "business"],
   },
   {
-    id: 8,
+    id: "fiscalite",
     title: "Fiscalité",
     description:
       "Conseil fiscal et optimisation de votre situation fiscale",
@@ -68,7 +77,7 @@ const domaines = [
     keywords: ["fiscalité", "impôts", "taxes", "fiscal"],
   },
   {
-    id: 9,
+    id: "voyage",
     title: "Voyage",
     description:
       "Organisation et conseil pour vos voyages professionnels et personnels",
@@ -76,7 +85,7 @@ const domaines = [
     keywords: ["voyage", "déplacement", "tourisme", "visa"],
   },
   {
-    id: 10,
+    id: "commission",
     title: "Commission acquisition ou vente",
     description:
       "Accompagnement dans l'achat ou la vente de biens meubles et immeubles",
@@ -85,17 +94,66 @@ const domaines = [
   },
 ];
 
+const iconForService = (service: Service) => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  if (key.includes("conseil")) return "💼";
+  if (key.includes("intelligence")) return "🧠";
+  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
+    return "💻";
+  }
+  if (key.includes("recrutement")) return "👥";
+  if (key.includes("formation")) return "🎓";
+  if (key.includes("fourniture")) return "📦";
+  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
+  if (key.includes("fiscal")) return "🧾";
+  if (key.includes("voyage")) return "✈️";
+  if (key.includes("commission") || key.includes("vente")) return "🤝";
+  return "✨";
+};
+
+const isForIndividuals = (service: Service) => {
+  const audience = (service.forAudience || "").toLowerCase();
+  if (!audience) return true;
+  return (
+    audience.includes("particul") ||
+    audience.includes("tous") ||
+    audience.includes("all") ||
+    audience.includes("both")
+  );
+};
+
 export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { data, isLoading } = useGetServicesQuery();
 
-  const filteredDomaines = domaines.filter((domaine) => {
+  const domaines = useMemo(() => {
+    if (!data?.services?.length) {
+      return fallbackDomaines;
+    }
+
+    return data.services
+      .filter(isForIndividuals)
+      .map((service, index) => ({
+        id: service.id || service._id || service.slug || String(index),
+        title: service.name,
+        description: service.description,
+        icon: iconForService(service),
+        keywords: [service.name, service.category, service.forAudience, service.description]
+          .filter(Boolean)
+          .map((item) => String(item).toLowerCase()),
+      }));
+  }, [data]);
+
+  const filteredDomaines = useMemo(() => {
     const query = searchQuery.toLowerCase();
-    return (
-      domaine.title.toLowerCase().includes(query) ||
-      domaine.description.toLowerCase().includes(query) ||
-      domaine.keywords.some((keyword) => keyword.includes(query))
-    );
-  });
+    return domaines.filter((domaine) => {
+      return (
+        domaine.title.toLowerCase().includes(query) ||
+        domaine.description.toLowerCase().includes(query) ||
+        domaine.keywords.some((keyword) => keyword.includes(query))
+      );
+    });
+  }, [domaines, searchQuery]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -142,6 +200,12 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
             />
           </div>
         </div>
+
+        {isLoading && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Chargement des services...
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDomaines.map((domaine) => (

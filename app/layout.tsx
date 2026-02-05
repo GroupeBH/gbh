@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { DM_Sans, Sora } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 const bodyFont = DM_Sans({
   variable: "--font-body",
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${bodyFont.variable} ${headingFont.variable} antialiased`}>
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

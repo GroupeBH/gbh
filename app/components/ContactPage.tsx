@@ -2,6 +2,7 @@
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useState } from "react";
+import { useCreateContactMutation } from "../store/api";
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,11 +12,21 @@ export function ContactPage() {
     subject: "",
     message: "",
   });
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [createContact, { isLoading, isSuccess, error }] =
+    useCreateContactMutation();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Message envoyé ! Nous vous répondrons dans les plus brefs délais.");
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    setStatusMessage(null);
+
+    try {
+      await createContact(formData).unwrap();
+      setStatusMessage("Message envoyé ! Nous vous répondrons dans les plus brefs délais.");
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    } catch {
+      setStatusMessage("Impossible d'envoyer le message pour le moment.");
+    }
   };
 
   return (
@@ -127,9 +138,7 @@ export function ContactPage() {
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="votre.email@exemple.com"
                   className="w-full"
                 />
@@ -137,10 +146,11 @@ export function ContactPage() {
 
               <div>
                 <label className="block mb-2 text-[var(--gbh-black-soft)]">
-                  Téléphone
+                  Téléphone <span className="text-red-500">*</span>
                 </label>
                 <Input
                   type="tel"
+                  required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+243 XXX XXX XXX"
@@ -156,9 +166,7 @@ export function ContactPage() {
                   type="text"
                   required
                   value={formData.subject}
-                  onChange={(e) =>
-                    setFormData({ ...formData, subject: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="Objet de votre message"
                   className="w-full"
                 />
@@ -171,22 +179,39 @@ export function ContactPage() {
                 <Textarea
                   required
                   value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   placeholder="Décrivez votre demande..."
                   className="w-full min-h-[150px]"
                 />
               </div>
 
+              {statusMessage && (
+                <div
+                  className={`rounded-2xl px-4 py-3 text-sm ${
+                    isSuccess
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-amber-50 text-amber-700"
+                  }`}
+                >
+                  {statusMessage}
+                </div>
+              )}
+
+              {error && !statusMessage && (
+                <div className="rounded-2xl px-4 py-3 text-sm bg-rose-50 text-rose-700">
+                  Une erreur est survenue. Merci de réessayer.
+                </div>
+              )}
+
               <Button
                 type="submit"
                 className="w-full py-6"
                 size="lg"
+                disabled={isLoading}
                 style={{ backgroundColor: "var(--gbh-magenta)" }}
               >
                 <span className="text-lg">📨</span>
-                Envoyer le message
+                {isLoading ? "Envoi en cours..." : "Envoyer le message"}
               </Button>
             </form>
           </div>

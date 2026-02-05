@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { HomePage } from "./HomePage";
@@ -9,6 +9,7 @@ import { OrganisationsPage } from "./OrganisationsPage";
 import { DomainesPage } from "./DomainesPage";
 import { RdvPage } from "./RdvPage";
 import { ContactPage } from "./ContactPage";
+import { AdminPage } from "./AdminPage";
 
 type Page =
   | "home"
@@ -16,15 +17,42 @@ type Page =
   | "organisations"
   | "domaines"
   | "rdv"
-  | "contact";
+  | "contact"
+  | "admin";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
 
   const handleNavigate = (page: string) => {
     setCurrentPage(page as Page);
+    if (typeof window !== "undefined") {
+      window.location.hash = page;
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  useEffect(() => {
+    const pages: Page[] = [
+      "home",
+      "particuliers",
+      "organisations",
+      "domaines",
+      "rdv",
+      "contact",
+      "admin",
+    ];
+
+    const readHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (pages.includes(hash as Page)) {
+        setCurrentPage(hash as Page);
+      }
+    };
+
+    readHash();
+    window.addEventListener("hashchange", readHash);
+    return () => window.removeEventListener("hashchange", readHash);
+  }, []);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -40,6 +68,8 @@ export default function App() {
         return <RdvPage onNavigate={handleNavigate} />;
       case "contact":
         return <ContactPage />;
+      case "admin":
+        return <AdminPage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

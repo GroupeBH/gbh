@@ -1,244 +1,433 @@
-﻿import { useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Badge } from "./ui/badge";
-import { Checkbox } from "./ui/checkbox";
+import {
+  useCreateAppointmentMutation,
+  useCreatePaymentIntentMutation,
+  useGetAvailabilityQuery,
+  useGetServicesQuery,
+  type Service,
+} from "../store/api";
 
 interface RdvPageProps {
   onNavigate: (page: string) => void;
 }
 
-const mockReservations: { [key: string]: string[] } = {
-  "2026-02-06": ["09:00", "10:00", "14:00"],
-  "2026-02-10": ["09:00", "10:00", "11:00", "14:00", "15:00", "16:00"],
-  "2026-02-12": ["09:00", "14:00"],
-  "2026-02-18": ["10:00", "15:00"],
-  "2026-02-24": ["09:00", "10:00", "14:00"],
-  "2026-03-03": ["09:00", "11:00"],
-  "2026-03-05": ["14:00", "15:00", "16:00"],
+type ServiceOption = {
+  id: string;
+  name: string;
+  description: string;
+  category?: string;
+  forAudience?: string;
+  price: number;
+  duration: string;
 };
 
-const services = [
+const fallbackServices: ServiceOption[] = [
   {
     id: "conseil",
     name: "Conseil stratégique",
-    badge: "Consultation particulière",
+    description: "Accompagnement personnalisé pour vos projets professionnels",
+    category: "Conseil",
+    forAudience: "Particuliers & Organisations",
+    price: 125000,
+    duration: "60 min",
   },
   {
     id: "intelligence",
     name: "Intelligence opérationnelle",
-    badge: "Consultation particulière",
+    description: "Audit et optimisation de vos processus internes",
+    category: "Intelligence",
+    forAudience: "Organisations",
+    price: 150000,
+    duration: "75 min",
   },
   {
     id: "numerique",
     name: "Laboratoire numérique",
-    badge: "Consultation particulière",
+    description: "Solutions digitales adaptées à vos besoins",
+    category: "Numérique",
+    forAudience: "Particuliers & Organisations",
+    price: 90000,
+    duration: "60 min",
   },
-  { id: "recrutement", name: "Recrutement", badge: "Consultation particulière" },
-  { id: "formation", name: "Formation", badge: "Consultation particulière" },
-  { id: "fourniture", name: "Fourniture de biens", badge: "Consultation particulière" },
-  { id: "entrepreneuriat", name: "Entrepreneuriat", badge: "Consultation particulière" },
-  { id: "fiscalite", name: "Fiscalité", badge: "Consultation particulière" },
-  { id: "voyage", name: "Voyage", badge: "Consultation particulière" },
+  {
+    id: "recrutement",
+    name: "Recrutement",
+    description: "Sélection et placement de talents",
+    category: "Recrutement",
+    forAudience: "Organisations",
+    price: 110000,
+    duration: "45 min",
+  },
+  {
+    id: "formation",
+    name: "Formation",
+    description: "Montée en compétences sur mesure",
+    category: "Formation",
+    forAudience: "Particuliers & Organisations",
+    price: 80000,
+    duration: "90 min",
+  },
+  {
+    id: "fourniture",
+    name: "Fourniture de biens",
+    description: "Approvisionnement fiable en biens et services",
+    category: "Fourniture",
+    forAudience: "Organisations",
+    price: 70000,
+    duration: "45 min",
+  },
+  {
+    id: "entrepreneuriat",
+    name: "Entrepreneuriat",
+    description: "Structuration et croissance de votre activité",
+    category: "Business",
+    forAudience: "Particuliers",
+    price: 95000,
+    duration: "60 min",
+  },
+  {
+    id: "fiscalite",
+    name: "Fiscalité",
+    description: "Optimisation fiscale et conformité",
+    category: "Fiscalité",
+    forAudience: "Particuliers & Organisations",
+    price: 105000,
+    duration: "60 min",
+  },
+  {
+    id: "voyage",
+    name: "Voyage",
+    description: "Organisation et conseil sur vos déplacements",
+    category: "Voyage",
+    forAudience: "Particuliers",
+    price: 65000,
+    duration: "30 min",
+  },
   {
     id: "commission",
-    name: "Commission acquisition ou vente de biens",
-    badge: "Consultation particulière",
+    name: "Commission acquisition/vente",
+    description: "Assistance dans vos transactions",
+    category: "Commission",
+    forAudience: "Particuliers & Organisations",
+    price: 120000,
+    duration: "60 min",
   },
 ];
 
+const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+const monthNames = [
+  "Janvier",
+  "Février",
+  "Mars",
+  "Avril",
+  "Mai",
+  "Juin",
+  "Juillet",
+  "Août",
+  "Septembre",
+  "Octobre",
+  "Novembre",
+  "Décembre",
+];
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat("fr-FR").format(amount) + " CDF";
+
+const formatISODate = (year: number, month: number, day: number) => {
+  const mm = String(month + 1).padStart(2, "0");
+  const dd = String(day).padStart(2, "0");
+  return `${year}-${mm}-${dd}`;
+};
+
+const formatDateDisplay = (date: string) => {
+  if (!date) return "—";
+  const [year, month, day] = date.split("-");
+  return `${day}/${month}/${year}`;
+};
+
+const SLOT_MINUTES = 45;
+
+type TimeRange = {
+  start: string;
+  end: string;
+};
+
+const parseClockToMinutes = (clock: string) => {
+  const [h, m] = clock.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) return 0;
+  return h * 60 + m;
+};
+
+const minutesToClock = (minutes: number) => {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+};
+
+const dayRangesForDate = (date: Date): TimeRange[] => {
+  const weekday = date.getDay();
+  if (weekday >= 1 && weekday <= 5) {
+    return [
+      { start: "09:00", end: "12:00" },
+      { start: "14:00", end: "17:00" },
+    ];
+  }
+  if (weekday === 6) {
+    return [{ start: "09:00", end: "13:00" }];
+  }
+  return [];
+};
+
+const generateSlotsForDate = (dateStr: string) => {
+  if (!dateStr) return [];
+  const date = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return [];
+
+  const ranges = dayRangesForDate(date);
+  if (!ranges.length) return [];
+
+  const slots: string[] = [];
+  ranges.forEach((range) => {
+    const start = parseClockToMinutes(range.start);
+    const end = parseClockToMinutes(range.end);
+    for (let cursor = start; cursor + SLOT_MINUTES <= end; cursor += SLOT_MINUTES) {
+      slots.push(minutesToClock(cursor));
+    }
+  });
+
+  return slots;
+};
+
+const mapServiceToOption = (service: Service, index: number): ServiceOption => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  let price = 90000;
+  if (key.includes("conseil")) price = 125000;
+  if (key.includes("intelligence")) price = 150000;
+  if (key.includes("fourniture")) price = 70000;
+  if (key.includes("voyage")) price = 65000;
+  if (key.includes("commission")) price = 120000;
+
+  return {
+    id: service.id || service._id || service.slug || `service-${index}`,
+    name: service.name,
+    description: service.description,
+    category: service.category,
+    forAudience: service.forAudience,
+    price,
+    duration: "60 min",
+  };
+};
+
 export function RdvPage({ onNavigate }: RdvPageProps) {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedService, setSelectedService] = useState("");
-  const [consultationType, setConsultationType] = useState("online");
+  const { data: servicesData, isLoading: isServicesLoading } =
+    useGetServicesQuery();
+  const [createAppointment, { isLoading: isBooking }] =
+    useCreateAppointmentMutation();
+  const [createPaymentIntent, { isLoading: isPaying }] =
+    useCreatePaymentIntentMutation();
+
+  const [step, setStep] = useState(1);
+  const [selectedServiceId, setSelectedServiceId] = useState<string>("");
+  const [appointmentType, setAppointmentType] =
+    useState<"online" | "presentiel">("online");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "place">("place");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [contactInfo, setContactInfo] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+  const [bookingMessage, setBookingMessage] = useState<string | null>(null);
+  const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
 
-  const monthNames = [
-    "Janvier",
-    "Février",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Août",
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "Décembre",
-  ];
+  const today = new Date();
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
-  const daysOfWeek = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"];
-
-  const generateTimeSlots = (date: string) => {
-    const dayOfWeek = new Date(date).getDay();
-    const slots: string[] = [];
-
-    if (dayOfWeek === 0) return [];
-
-    if (dayOfWeek === 6) {
-      for (let hour = 9; hour < 13; hour++) {
-        slots.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-    } else {
-      for (let hour = 9; hour < 12; hour++) {
-        slots.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
-      for (let hour = 14; hour < 17; hour++) {
-        slots.push(`${hour.toString().padStart(2, "0")}:00`);
-      }
+  const services: ServiceOption[] = useMemo(() => {
+    if (servicesData?.services?.length) {
+      return servicesData.services.map(mapServiceToOption);
     }
+    return fallbackServices;
+  }, [servicesData]);
 
-    return slots;
-  };
-
-  const isTimeSlotAvailable = (date: string, time: string) => {
-    const reservations = mockReservations[date] || [];
-    return !reservations.includes(time);
-  };
-
-  const hasAvailableSlots = (date: string) => {
-    const allSlots = generateTimeSlots(date);
-    if (allSlots.length === 0) return false;
-    const reservations = mockReservations[date] || [];
-    return allSlots.length > reservations.length;
-  };
-
-  const getAvailableSlotsCount = (date: string) => {
-    const allSlots = generateTimeSlots(date);
-    const reservations = mockReservations[date] || [];
-    return allSlots.length - reservations.length;
-  };
-
-  const generateCalendar = () => {
-    const firstDay = new Date(currentYear, currentMonth, 1);
-    const lastDay = new Date(currentYear, currentMonth + 1, 0);
-    const startDayOfWeek = firstDay.getDay();
-    const daysInMonth = lastDay.getDate();
-
-    const calendar: (number | null)[] = [];
-
-    for (let i = 0; i < startDayOfWeek; i++) {
-      calendar.push(null);
+  useEffect(() => {
+    if (!selectedServiceId && services.length) {
+      setSelectedServiceId(services[0].id);
     }
+  }, [services, selectedServiceId]);
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      calendar.push(day);
+  const selectedService = useMemo(
+    () => services.find((item) => item.id === selectedServiceId) || services[0],
+    [services, selectedServiceId],
+  );
+
+  const {
+    data: availabilityData,
+    isFetching: isAvailabilityLoading,
+    isSuccess: isAvailabilitySuccess,
+    isError: isAvailabilityError,
+  } =
+    useGetAvailabilityQuery(
+      { date: selectedDate },
+      { skip: !selectedDate },
+    );
+
+  const availableSlots = availabilityData?.slots ?? [];
+  const fullSlots = useMemo(
+    () => generateSlotsForDate(selectedDate),
+    [selectedDate],
+  );
+  const availableSlotSet = useMemo(
+    () => new Set(availableSlots),
+    [availableSlots],
+  );
+
+  const availabilityState = !selectedDate
+    ? "idle"
+    : isAvailabilityLoading
+    ? "loading"
+    : isAvailabilityError
+    ? "error"
+    : isAvailabilitySuccess
+    ? "ready"
+    : "idle";
+
+  useEffect(() => {
+    if (availabilityState !== "ready") return;
+    if (selectedTime && !availableSlotSet.has(selectedTime)) {
+      setSelectedTime("");
     }
+  }, [availabilityState, selectedTime, availableSlotSet]);
 
-    return calendar;
-  };
-
-  const isPastDate = (year: number, month: number, day: number) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(year, month, day);
-    return checkDate < today;
-  };
-
-  const goToPreviousMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
-  };
-
-  const goToNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
-  };
-
-  const handleDateSelect = (day: number) => {
-    const dateStr = `${currentYear}-${(currentMonth + 1)
-      .toString()
-      .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-
-    if (isPastDate(currentYear, currentMonth, day) || !hasAvailableSlots(dateStr)) {
-      return;
-    }
-
-    setSelectedDate(dateStr);
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
     setSelectedTime("");
   };
 
-  const nextStep = () => {
-    if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
+  const handleMonthChange = (direction: "prev" | "next") => {
+    const nextMonth = direction === "next" ? currentMonth + 1 : currentMonth - 1;
+    if (nextMonth < 0) {
+      setCurrentMonth(11);
+      setCurrentYear((prev) => prev - 1);
+      return;
+    }
+    if (nextMonth > 11) {
+      setCurrentMonth(0);
+      setCurrentYear((prev) => prev + 1);
+      return;
+    }
+    setCurrentMonth(nextMonth);
+  };
+
+  const calendarCells = useMemo(() => {
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const offset = (firstDay + 6) % 7;
+    const cells: Array<
+      | {
+          day: number;
+          date: string;
+          disabled: boolean;
+          isToday: boolean;
+        }
+      | null
+    > = Array.from({ length: offset }, () => null);
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+      const date = new Date(currentYear, currentMonth, day);
+      date.setHours(0, 0, 0, 0);
+      const dateString = formatISODate(currentYear, currentMonth, day);
+      const isPast = date.getTime() < new Date().setHours(0, 0, 0, 0);
+      const isSunday = date.getDay() === 0;
+      const isToday = date.getTime() === new Date().setHours(0, 0, 0, 0);
+      cells.push({
+        day,
+        date: dateString,
+        disabled: isPast || isSunday,
+        isToday,
+      });
+    }
+    return cells;
+  }, [currentMonth, currentYear]);
+
+  const canProceedFromStep = (currentStep: number) => {
+    if (currentStep === 1) return Boolean(selectedServiceId);
+    if (currentStep === 2) return Boolean(appointmentType);
+    if (currentStep === 3) return Boolean(selectedDate && selectedTime);
+    if (currentStep === 4) {
+      return (
+        contactInfo.name.trim() &&
+        contactInfo.email.trim() &&
+        contactInfo.phone.trim() &&
+        acceptedTerms
+      );
+    }
+    return true;
+  };
+
+  const handleConfirm = async () => {
+    setBookingMessage(null);
+    setPaymentMessage(null);
+
+    if (!selectedService || !selectedDate || !selectedTime) {
+      setBookingMessage("Merci de compléter votre sélection.");
+      return;
+    }
+
+    try {
+      const appointment = await createAppointment({
+        serviceId: selectedService.id,
+        name: contactInfo.name,
+        email: contactInfo.email,
+        phone: contactInfo.phone,
+        type: appointmentType,
+        date: selectedDate,
+        time: selectedTime,
+        paymentMethod,
+        price: selectedService.price,
+      }).unwrap();
+
+      const appointmentId = appointment.id || appointment._id || "";
+
+      if (paymentMethod === "online" && appointmentId) {
+        const intent = await createPaymentIntent({
+          appointmentId,
+        }).unwrap();
+
+        if (intent.status === "created") {
+          setPaymentMessage(
+            `Paiement en ligne initié. Montant: ${formatCurrency(intent.amount)}.`,
+          );
+        } else {
+          setPaymentMessage("Paiement en ligne non requis.");
+        }
+      } else {
+        setPaymentMessage("Paiement sur place confirmé.");
+      }
+
+      setBookingMessage(
+        "Votre rendez-vous est confirmé. Nous vous contacterons rapidement.",
+      );
+    } catch {
+      setBookingMessage(
+        "Impossible de réserver pour le moment. Merci de réessayer.",
+      );
     }
   };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const canProceedFromStep = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return selectedService !== "";
-      case 2:
-        return consultationType !== "";
-      case 3:
-        return selectedDate !== "" && selectedTime !== "";
-      case 4:
-        return acceptedTerms;
-      case 5:
-        return paymentMethod !== "";
-      default:
-        return false;
-    }
-  };
-
-  const formatDateDisplay = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const days = [
-      "Dimanche",
-      "Lundi",
-      "Mardi",
-      "Mercredi",
-      "Jeudi",
-      "Vendredi",
-      "Samedi",
-    ];
-    const months = [
-      "janvier",
-      "février",
-      "mars",
-      "avril",
-      "mai",
-      "juin",
-      "juillet",
-      "août",
-      "septembre",
-      "octobre",
-      "novembre",
-      "décembre",
-    ];
-    return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-  };
-
-  const consultationPrice = 50000;
-  const tvaRate = 0.16;
-  const tvaAmount = Math.round(consultationPrice * tvaRate);
-  const totalPrice = consultationPrice + tvaAmount;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        <div className="text-center mb-12">
           <div
             className="inline-block px-4 py-2 rounded-full mb-4 text-sm"
             style={{
@@ -246,563 +435,634 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
               color: "var(--gbh-magenta)",
             }}
           >
-            BOOKING PLATFORM
+            PLATEFORME RDV
           </div>
-          <h1 className="mb-4 text-[var(--gbh-black-soft)] text-4xl md:text-5xl">
-            Plateforme de{" "}
+          <h1 className="mb-4 text-[var(--gbh-black-soft)] text-4xl md:text-6xl">
+            Prenez rendez-vous{" "}
             <span className="relative inline-block">
-              <span className="relative z-10">rendez-vous</span>
+              <span className="relative z-10">avec nos experts</span>
               <span
                 className="absolute bottom-2 left-0 w-full h-3 -z-0"
                 style={{ backgroundColor: "#D4FF00" }}
               ></span>
             </span>
           </h1>
-          <p className="text-lg text-[var(--gbh-gray-text)]">
-            Réservez votre consultation en quelques étapes
+          <p className="text-xl text-[var(--gbh-gray-text)]">
+            Sélectionnez votre service, votre créneau et confirmez votre rendez-vous.
           </p>
         </div>
 
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4, 5].map((step) => (
-              <div key={step} className="flex flex-col items-center">
+        <div className="grid gap-6 md:grid-cols-5 mb-10">
+          {[
+            "Service",
+            "Type",
+            "Date",
+            "Coordonnées",
+            "Confirmation",
+          ].map((label, index) => {
+            const stepIndex = index + 1;
+            const isActive = step === stepIndex;
+            const isDone = step > stepIndex;
+            return (
+              <div
+                key={label}
+                className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
+                  isActive
+                    ? "border-[var(--gbh-magenta)] bg-white shadow-md"
+                    : "border-transparent bg-white/70"
+                }`}
+              >
                 <div
-                  className={`flex items-center justify-center w-12 h-12 rounded-full transition-all shadow-lg ${
-                    step <= currentStep
-                      ? "text-white scale-110"
-                      : "bg-white text-[var(--gbh-gray-text)]"
+                  className={`h-10 w-10 rounded-xl flex items-center justify-center font-semibold ${
+                    isDone
+                      ? "bg-[var(--gbh-magenta)] text-white"
+                      : "bg-[var(--gbh-magenta-light)] text-[var(--gbh-magenta)]"
                   }`}
-                  style={
-                    step <= currentStep
-                      ? { backgroundColor: "var(--gbh-magenta)" }
-                      : {}
-                  }
                 >
-                  {step}
+                  {stepIndex}
                 </div>
-                <div className="text-xs mt-2 text-[var(--gbh-gray-text)] hidden sm:block">
-                  {step === 1 && "Service"}
-                  {step === 2 && "Type"}
-                  {step === 3 && "Date"}
-                  {step === 4 && "Récap"}
-                  {step === 5 && "Paiement"}
+                <div>
+                  <div className="text-sm text-[var(--gbh-gray-text)]">
+                    Étape {stepIndex}
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {label}
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((step) => (
-              <div
-                key={step}
-                className="flex-1 h-2 rounded-full transition-all"
-                style={{
-                  backgroundColor:
-                    step <= currentStep ? "var(--gbh-magenta)" : "#E5E7EB",
-                }}
-              ></div>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 mb-6">
-          {currentStep === 1 && (
+        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
+          {step === 1 && (
             <div>
-              <h2 className="mb-6 text-[var(--gbh-black-soft)]">
-                Étape 1 : Choisissez votre service
-              </h2>
-              <div className="space-y-3">
-                {services.map((service) => (
-                  <div
-                    key={service.id}
-                    onClick={() => setSelectedService(service.id)}
-                    className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                      selectedService === service.id
-                        ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-[var(--gbh-black-soft)]">
-                          {service.name}
-                        </h3>
-                        <Badge
-                          className="mt-2"
-                          style={{
-                            backgroundColor: "var(--gbh-magenta-light)",
-                            color: "var(--gbh-magenta)",
-                          }}
-                        >
-                          {service.badge}
-                        </Badge>
-                      </div>
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                          selectedService === service.id
-                            ? "border-[var(--gbh-magenta)]"
-                            : "border-gray-300"
-                        }`}
-                      >
-                        {selectedService === service.id && (
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-[var(--gbh-black-soft)] mb-2">
+                    Choisissez votre service
+                  </h2>
+                  <p className="text-[var(--gbh-gray-text)]">
+                    Sélectionnez le domaine qui correspond à votre besoin.
+                  </p>
+                </div>
+                <Badge
+                  className="rounded-full"
+                  style={{
+                    backgroundColor: "var(--gbh-magenta-light)",
+                    color: "var(--gbh-magenta)",
+                  }}
+                >
+                  {services.length} services
+                </Badge>
+              </div>
+
+              {isServicesLoading && (
+                <p className="text-[var(--gbh-gray-text)] mb-6">
+                  Chargement des services...
+                </p>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {services.map((service) => {
+                  const isSelected = service.id === selectedServiceId;
+                  return (
+                    <button
+                      key={service.id}
+                      type="button"
+                      onClick={() => setSelectedServiceId(service.id)}
+                      className={`text-left rounded-3xl border-2 p-6 transition-all ${
+                        isSelected
+                          ? "border-[var(--gbh-magenta)] shadow-lg bg-[var(--gbh-magenta-light)]/30"
+                          : "border-transparent bg-[var(--gbh-gray-ui)]/60 hover:border-[var(--gbh-magenta-light)]"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div>
+                          <h3 className="text-[var(--gbh-black-soft)]">
+                            {service.name}
+                          </h3>
+                          <p className="text-[var(--gbh-gray-text)] text-sm">
+                            {service.description}
+                          </p>
+                        </div>
+                        <div className="text-right">
                           <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: "var(--gbh-magenta)" }}
-                          ></div>
+                            className="text-lg font-semibold"
+                            style={{ color: "var(--gbh-magenta)" }}
+                          >
+                            {formatCurrency(service.price)}
+                          </div>
+                          <div className="text-xs text-[var(--gbh-gray-text)]">
+                            {service.duration}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {service.category && (
+                          <span className="rounded-full bg-white px-3 py-1 text-[var(--gbh-gray-text)]">
+                            {service.category}
+                          </span>
+                        )}
+                        {service.forAudience && (
+                          <span className="rounded-full bg-white px-3 py-1 text-[var(--gbh-gray-text)]">
+                            {service.forAudience}
+                          </span>
                         )}
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {currentStep === 2 && (
+          {step === 2 && (
             <div>
-              <h2 className="mb-6 text-[var(--gbh-black-soft)]">
-                Étape 2 : Type de consultation
+              <h2 className="text-[var(--gbh-black-soft)] mb-2">
+                Choisissez le type de consultation
               </h2>
-              <RadioGroup value={consultationType} onValueChange={setConsultationType}>
-                <div
-                  className={`p-6 border-2 rounded-xl mb-4 cursor-pointer transition-all ${
-                    consultationType === "online"
-                      ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]"
-                      : "border-gray-200"
-                  }`}
-                  onClick={() => setConsultationType("online")}
-                >
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="online" id="online" />
-                    <div className="flex items-center gap-3 flex-1">
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                      >
-                        📹
-                      </div>
-                      <div>
-                        <Label htmlFor="online" className="cursor-pointer">
-                          En ligne
-                        </Label>
-                        <p className="text-sm text-[var(--gbh-gray-text)]">
-                          Consultation par visioconférence
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <p className="text-[var(--gbh-gray-text)] mb-8">
+                Sélectionnez le mode de rendez-vous le plus confortable pour vous.
+              </p>
 
-                <div
-                  className={`p-6 border-2 rounded-xl cursor-pointer transition-all ${
-                    consultationType === "presentiel"
-                      ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]"
-                      : "border-gray-200"
-                  }`}
-                  onClick={() => setConsultationType("presentiel")}
-                >
-                  <div className="flex items-center gap-4">
-                    <RadioGroupItem value="presentiel" id="presentiel" />
-                    <div className="flex items-center gap-3 flex-1">
-                      <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                      >
-                        📍
+              <RadioGroup
+                value={appointmentType}
+                onValueChange={(value) =>
+                  setAppointmentType(value as "online" | "presentiel")
+                }
+                className="grid gap-4"
+              >
+                {[
+                  {
+                    value: "online",
+                    title: "En ligne",
+                    description: "Visioconférence depuis votre téléphone ou PC",
+                  },
+                  {
+                    value: "presentiel",
+                    title: "Présentiel",
+                    description: "Rendez-vous dans nos bureaux à Kinshasa",
+                  },
+                ].map((option) => (
+                  <label
+                    key={option.value}
+                    className={`flex items-start gap-4 rounded-3xl border-2 p-6 cursor-pointer transition-all ${
+                      appointmentType === option.value
+                        ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/40"
+                        : "border-transparent bg-[var(--gbh-gray-ui)]/60"
+                    }`}
+                  >
+                    <RadioGroupItem value={option.value} />
+                    <div>
+                      <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                        {option.title}
                       </div>
-                      <div>
-                        <Label htmlFor="presentiel" className="cursor-pointer">
-                          Présentiel
-                        </Label>
-                        <p className="text-sm text-[var(--gbh-gray-text)]">
-                          Consultation dans nos bureaux
-                        </p>
+                      <div className="text-sm text-[var(--gbh-gray-text)]">
+                        {option.description}
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </label>
+                ))}
               </RadioGroup>
             </div>
           )}
 
-          {currentStep === 3 && (
+          {step === 3 && (
             <div>
-              <h2 className="mb-6 text-[var(--gbh-black-soft)]">
-                Étape 3 : Sélectionnez une date et un horaire
+              <h2 className="text-[var(--gbh-black-soft)] mb-2">
+                Choisissez une date et un créneau
               </h2>
+              <p className="text-[var(--gbh-gray-text)] mb-8">
+                Les créneaux disponibles s'affichent selon la date choisie.
+              </p>
 
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-6">
-                  <Button
-                    onClick={goToPreviousMonth}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    aria-label="Mois précédent"
-                  >
-                    <span aria-hidden="true">←</span>
-                  </Button>
-                  <h3 className="text-xl font-semibold text-[var(--gbh-black-soft)]">
-                    {monthNames[currentMonth]} {currentYear}
-                  </h3>
-                  <Button
-                    onClick={goToNextMonth}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-xl"
-                    aria-label="Mois suivant"
-                  >
-                    <span aria-hidden="true">→</span>
-                  </Button>
-                </div>
-
-                <div className="grid grid-cols-7 gap-2 mb-3">
-                  {daysOfWeek.map((day) => (
-                    <div
-                      key={day}
-                      className="text-center text-sm font-semibold text-[var(--gbh-gray-text)] py-2"
-                    >
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-7 gap-2">
-                  {generateCalendar().map((day, index) => {
-                    if (day === null) {
-                      return <div key={`empty-${index}`} className="aspect-square"></div>;
-                    }
-
-                    const dateStr = `${currentYear}-${(currentMonth + 1)
-                      .toString()
-                      .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-                    const isPast = isPastDate(currentYear, currentMonth, day);
-                    const hasSlots = hasAvailableSlots(dateStr);
-                    const availableCount = getAvailableSlotsCount(dateStr);
-                    const isSelected = selectedDate === dateStr;
-                    const isSunday = new Date(dateStr).getDay() === 0;
-                    const isFullyBooked = !hasSlots && !isSunday;
-
-                    let dayClasses =
-                      "aspect-square flex flex-col items-center justify-center rounded-xl border-2 transition-all relative ";
-
-                    if (isPast || isSunday) {
-                      dayClasses +=
-                        "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed";
-                    } else if (isFullyBooked) {
-                      dayClasses +=
-                        "bg-red-50 text-red-400 border-red-200 cursor-not-allowed";
-                    } else if (isSelected) {
-                      dayClasses +=
-                        "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta)] text-white cursor-pointer shadow-lg scale-105";
-                    } else {
-                      dayClasses +=
-                        "border-gray-200 hover:border-[var(--gbh-magenta)] hover:shadow-md cursor-pointer";
-                    }
-
-                    return (
-                      <button
-                        key={day}
-                        onClick={() => handleDateSelect(day)}
-                        disabled={isPast || isSunday || isFullyBooked}
-                        className={dayClasses}
-                      >
-                        <span className="font-semibold">{day}</span>
-                        {!isPast && !isSunday && hasSlots && (
-                          <span
-                            className={`text-xs mt-1 ${
-                              isSelected ? "text-white" : "text-green-600"
-                            }`}
-                          >
-                            {availableCount} libre{availableCount > 1 ? "s" : ""}
-                          </span>
-                        )}
-                        {isFullyBooked && (
-                          <span className="text-xs mt-1 text-red-500">Complet</span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex flex-wrap gap-4 mt-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border-2 border-green-500 bg-green-50"></div>
-                    <span className="text-[var(--gbh-gray-text)]">Disponible</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border-2 border-red-200 bg-red-50"></div>
-                    <span className="text-[var(--gbh-gray-text)]">Complet</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded border-2 border-gray-200 bg-gray-100"></div>
-                    <span className="text-[var(--gbh-gray-text)]">Fermé/Passé</span>
-                  </div>
-                </div>
-              </div>
-
-              {selectedDate && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="mb-4 text-[var(--gbh-black-soft)]">
-                    Créneaux horaires disponibles pour le {formatDateDisplay(selectedDate)}
-                    <span className="text-sm text-[var(--gbh-gray-text)] ml-2">
-                      (Durée : 45 minutes)
-                    </span>
-                  </h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                    {generateTimeSlots(selectedDate).map((time) => {
-                      const isAvailable = isTimeSlotAvailable(selectedDate, time);
-                      const isSelected = selectedTime === time;
+                  <div className="flex items-center justify-between mb-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleMonthChange("prev")}
+                    >
+                      {"<"}
+                    </Button>
+                    <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                      {monthNames[currentMonth]} {currentYear}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => handleMonthChange("next")}
+                    >
+                      {">"}
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-2 text-sm text-center mb-3">
+                    {weekDays.map((day) => (
+                      <div key={day} className="font-semibold text-[var(--gbh-gray-text)]">
+                        {day}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-7 gap-2">
+                    {calendarCells.map((cell, index) => {
+                      if (!cell) {
+                        return <div key={`empty-${index}`} className="h-12" />;
+                      }
+
+                      const isSelected = selectedDate === cell.date;
 
                       return (
                         <button
-                          key={time}
-                          onClick={() => isAvailable && setSelectedTime(time)}
-                          disabled={!isAvailable}
-                          className={`p-4 rounded-xl border-2 transition-all ${
-                            !isAvailable
-                              ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed"
+                          key={cell.date}
+                          type="button"
+                          disabled={cell.disabled}
+                          onClick={() => handleDateSelect(cell.date)}
+                          className={`h-12 rounded-2xl flex items-center justify-center border transition-all ${
+                            cell.disabled
+                              ? "text-gray-300 border-transparent"
                               : isSelected
-                              ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta)] text-white shadow-lg"
-                              : "border-gray-200 hover:border-[var(--gbh-magenta)] hover:shadow-md"
+                              ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                              : "border-transparent bg-[var(--gbh-gray-ui)] hover:border-[var(--gbh-magenta)]"
+                          } ${
+                            cell.isToday && !isSelected
+                              ? "border-[var(--gbh-magenta-light)]"
+                              : ""
                           }`}
                         >
-                          <div className="text-sm mb-1">🕒</div>
-                          <div className="font-semibold">{time}</div>
-                          {!isAvailable && <div className="text-xs mt-1">Réservé</div>}
+                          {cell.day}
                         </button>
                       );
                     })}
                   </div>
-                  {new Date(selectedDate).getDay() === 6 && (
-                    <p className="text-sm text-[var(--gbh-gray-text)] mt-4 italic">
-                      ℹ️ Samedi : créneaux disponibles de 09h00 à 13h00 uniquement
-                    </p>
-                  )}
+
+                  <p className="mt-4 text-xs text-[var(--gbh-gray-text)]">
+                    Les dimanches sont indisponibles. Les dates passées sont désactivées.
+                  </p>
                 </div>
-              )}
-            </div>
-          )}
 
-          {currentStep === 4 && (
-            <div>
-              <h2 className="mb-6 text-[var(--gbh-black-soft)]">
-                Étape 4 : Récapitulatif et conditions
-              </h2>
+                <div>
+                  <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <div className="text-sm text-[var(--gbh-gray-text)]">
+                          Date sélectionnée
+                        </div>
+                        <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                          {formatDateDisplay(selectedDate)}
+                        </div>
+                      </div>
+                      <Badge
+                        className="rounded-full"
+                        style={{
+                          backgroundColor: "var(--gbh-magenta-light)",
+                          color: "var(--gbh-magenta)",
+                        }}
+                      >
+                        {selectedDate
+                          ? `${availableSlots.length}/${fullSlots.length} créneaux`
+                          : "Créneaux"}
+                      </Badge>
+                    </div>
 
-              <div className="bg-[var(--gbh-gray-ui)] rounded-xl p-6 mb-6">
-                <h3 className="mb-4 text-[var(--gbh-black-soft)]">Votre rendez-vous</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Service :</span>
-                    <span className="font-semibold">
-                      {services.find((s) => s.id === selectedService)?.name}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Type :</span>
-                    <span className="font-semibold capitalize">
-                      {consultationType === "online" ? "En ligne" : "Présentiel"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Date :</span>
-                    <span className="font-semibold">
-                      {selectedDate && formatDateDisplay(selectedDate)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Heure :</span>
-                    <span className="font-semibold">{selectedTime}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Durée :</span>
-                    <span className="font-semibold">45 minutes</span>
+                    {!selectedDate && (
+                      <p className="text-sm text-[var(--gbh-gray-text)]">
+                        Choisissez une date pour afficher les disponibilités.
+                      </p>
+                    )}
+
+                    {selectedDate && fullSlots.length === 0 && (
+                      <p className="text-sm text-[var(--gbh-gray-text)]">
+                        Aucun créneau prévu pour cette journée.
+                      </p>
+                    )}
+
+                    {selectedDate && fullSlots.length > 0 && availabilityState === "loading" && (
+                      <p className="text-sm text-[var(--gbh-gray-text)]">
+                        Chargement des créneaux disponibles...
+                      </p>
+                    )}
+
+                    {selectedDate &&
+                      fullSlots.length > 0 &&
+                      availabilityState === "error" && (
+                      <p className="text-sm text-rose-600">
+                        Impossible de charger les disponibilités. Vérifiez que l'API est
+                        en ligne et que `NEXT_PUBLIC_API_BASE_URL` est correct.
+                      </p>
+                    )}
+
+                    {selectedDate &&
+                      fullSlots.length > 0 &&
+                      availabilityState === "ready" &&
+                      availableSlots.length === 0 && (
+                      <p className="text-sm text-[var(--gbh-gray-text)]">
+                        Tous les créneaux sont indisponibles pour cette date.
+                      </p>
+                    )}
+
+                    {selectedDate && fullSlots.length > 0 && availabilityState === "ready" && (
+                      <div className="mt-4 flex items-center gap-4 text-xs text-[var(--gbh-gray-text)]">
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-[var(--gbh-magenta)]"></span>
+                          Disponible
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="h-2 w-2 rounded-full bg-gray-300"></span>
+                          Indisponible
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-3 gap-3 mt-4">
+                      {fullSlots.map((slot) => {
+                        const isSelected = selectedTime === slot;
+                        const isAvailable =
+                          availabilityState === "ready" && availableSlotSet.has(slot);
+                        const isPending =
+                          availabilityState === "loading" || availabilityState === "error";
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            disabled={!isAvailable}
+                            onClick={() => {
+                              if (isAvailable) setSelectedTime(slot);
+                            }}
+                            className={`rounded-2xl border px-3 py-2 text-sm transition-all ${
+                              isAvailable
+                                ? isSelected
+                                  ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                                  : "border-transparent bg-white hover:border-[var(--gbh-magenta-light)]"
+                                : isPending
+                                ? "border-dashed border-gray-200 bg-white/80 text-gray-400 cursor-not-allowed"
+                                : "border-transparent bg-gray-100 text-gray-400 line-through cursor-not-allowed"
+                            }`}
+                            title={
+                              isAvailable
+                                ? "Créneau disponible"
+                                : availabilityState === "ready"
+                                ? "Créneau indisponible"
+                                : "Chargement des disponibilités"
+                            }
+                          >
+                            {slot}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+          )}
 
-              <div className="bg-white border-2 border-gray-200 rounded-xl p-6 mb-6">
-                <h3 className="mb-4 text-[var(--gbh-black-soft)]">Tarification</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">Consultation :</span>
-                    <span className="font-semibold">
-                      {consultationPrice.toLocaleString()} CDF
+          {step === 4 && (
+            <div>
+              <h2 className="text-[var(--gbh-black-soft)] mb-2">
+                Vos coordonnées
+              </h2>
+              <p className="text-[var(--gbh-gray-text)] mb-8">
+                Renseignez vos informations pour confirmer votre rendez-vous.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 space-y-6">
+                  <div>
+                    <Label>Nom complet</Label>
+                    <Input
+                      value={contactInfo.name}
+                      onChange={(e) =>
+                        setContactInfo({ ...contactInfo, name: e.target.value })
+                      }
+                      placeholder="Votre nom"
+                    />
+                  </div>
+                  <div>
+                    <Label>Email</Label>
+                    <Input
+                      type="email"
+                      value={contactInfo.email}
+                      onChange={(e) =>
+                        setContactInfo({ ...contactInfo, email: e.target.value })
+                      }
+                      placeholder="votre.email@exemple.com"
+                    />
+                  </div>
+                  <div>
+                    <Label>Téléphone</Label>
+                    <Input
+                      type="tel"
+                      value={contactInfo.phone}
+                      onChange={(e) =>
+                        setContactInfo({ ...contactInfo, phone: e.target.value })
+                      }
+                      placeholder="+243 XXX XXX XXX"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={acceptedTerms}
+                      onCheckedChange={(checked) => setAcceptedTerms(checked)}
+                    />
+                    <span className="text-sm text-[var(--gbh-gray-text)]">
+                      J'accepte les conditions et la politique de confidentialité.
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gbh-gray-text)]">TVA (16%) :</span>
-                    <span className="font-semibold">{tvaAmount.toLocaleString()} CDF</span>
+                </div>
+
+                <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                  <h3 className="text-[var(--gbh-black-soft)] mb-4">Récapitulatif</h3>
+                  <div className="space-y-3 text-sm text-[var(--gbh-gray-text)]">
+                    <div>
+                      <div className="text-xs uppercase">Service</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {selectedService?.name || "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase">Type</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {appointmentType === "online" ? "En ligne" : "Présentiel"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase">Date</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {formatDateDisplay(selectedDate)}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase">Créneau</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {selectedTime || "—"}
+                      </div>
+                    </div>
                   </div>
-                  <div className="border-t-2 border-gray-200 pt-3 mt-3">
-                    <div className="flex justify-between">
+                  <div className="border-t border-white/60 mt-4 pt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[var(--gbh-gray-text)]">Prix</span>
                       <span className="font-semibold text-[var(--gbh-black-soft)]">
-                        Total TTC :
+                        {selectedService ? formatCurrency(selectedService.price) : "—"}
                       </span>
-                      <span
-                        className="text-xl font-bold"
-                        style={{ color: "var(--gbh-magenta)" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div>
+              <h2 className="text-[var(--gbh-black-soft)] mb-2">
+                Paiement et confirmation
+              </h2>
+              <p className="text-[var(--gbh-gray-text)] mb-8">
+                Choisissez votre mode de paiement avant de valider le rendez-vous.
+              </p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                  <RadioGroup
+                    value={paymentMethod}
+                    onValueChange={(value) =>
+                      setPaymentMethod(value as "online" | "place")
+                    }
+                    className="grid gap-4"
+                  >
+                    {[
+                      {
+                        value: "place",
+                        title: "Paiement sur place",
+                        description: "Réglez lors de votre rendez-vous",
+                      },
+                      {
+                        value: "online",
+                        title: "Paiement en ligne",
+                        description: "Payez maintenant par mobile money ou carte",
+                      },
+                    ].map((option) => (
+                      <label
+                        key={option.value}
+                        className={`flex items-start gap-4 rounded-3xl border-2 p-6 cursor-pointer transition-all ${
+                          paymentMethod === option.value
+                            ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/40"
+                            : "border-transparent bg-[var(--gbh-gray-ui)]/60"
+                        }`}
                       >
-                        {totalPrice.toLocaleString()} CDF
+                        <RadioGroupItem value={option.value} />
+                        <div>
+                          <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                            {option.title}
+                          </div>
+                          <div className="text-sm text-[var(--gbh-gray-text)]">
+                            {option.description}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                  <h3 className="text-[var(--gbh-black-soft)] mb-4">Résumé final</h3>
+                  <div className="space-y-3 text-sm text-[var(--gbh-gray-text)]">
+                    <div>
+                      <div className="text-xs uppercase">Service</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {selectedService?.name || "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase">Date</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {formatDateDisplay(selectedDate)} à {selectedTime || "—"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase">Contact</div>
+                      <div className="font-semibold text-[var(--gbh-black-soft)]">
+                        {contactInfo.name || "—"}
+                      </div>
+                      <div>{contactInfo.email || "—"}</div>
+                      <div>{contactInfo.phone || "—"}</div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/60 mt-4 pt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-[var(--gbh-gray-text)]">Total</span>
+                      <span className="font-semibold text-[var(--gbh-black-soft)]">
+                        {selectedService ? formatCurrency(selectedService.price) : "—"}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 border-2 border-gray-200 rounded-xl">
-                <Checkbox
-                  id="terms"
-                  checked={acceptedTerms}
-                  onCheckedChange={(checked) => setAcceptedTerms(checked)}
-                />
-                <Label
-                  htmlFor="terms"
-                  className="cursor-pointer leading-relaxed text-[var(--gbh-gray-text)]"
-                >
-                  J'accepte de payer les frais de consultation et de me présenter à l'heure
-                  du rendez-vous
-                </Label>
+              <div className="mt-6 space-y-3">
+                {bookingMessage && (
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm ${
+                      bookingMessage.includes("confirmé")
+                        ? "bg-emerald-50 text-emerald-700"
+                        : "bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {bookingMessage}
+                  </div>
+                )}
+                {paymentMessage && (
+                  <div className="rounded-2xl px-4 py-3 text-sm bg-indigo-50 text-indigo-700">
+                    {paymentMessage}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {currentStep === 5 && (
-            <div>
-              <h2 className="mb-6 text-[var(--gbh-black-soft)]">
-                Étape 5 : Choix du mode de paiement
-              </h2>
+          <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (step === 1) {
+                  onNavigate("home");
+                  return;
+                }
+                setStep((prev) => Math.max(1, prev - 1));
+              }}
+            >
+              Retour
+            </Button>
 
-              <div className="bg-[var(--gbh-magenta-light)] rounded-xl p-6 mb-6 text-center">
-                <p className="text-[var(--gbh-gray-text)] mb-2">Montant à payer</p>
-                <p className="text-4xl font-bold" style={{ color: "var(--gbh-magenta)" }}>
-                  {totalPrice.toLocaleString()} CDF
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                <button
-                  onClick={() => setPaymentMethod("online")}
-                  className={`w-full p-6 border-2 rounded-xl transition-all flex items-center gap-4 ${
-                    paymentMethod === "online"
-                      ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                  >
-                    💳
-                  </div>
-                  <div className="text-left flex-1">
-                    <h3 className="mb-1 text-[var(--gbh-black-soft)]">Paiement en ligne</h3>
-                    <p className="text-sm text-[var(--gbh-gray-text)]">
-                      Carte bancaire, Mobile Money
-                    </p>
-                  </div>
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === "online"
-                        ? "border-[var(--gbh-magenta)]"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {paymentMethod === "online" && (
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: "var(--gbh-magenta)" }}
-                      ></div>
-                    )}
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setPaymentMethod("place")}
-                  className={`w-full p-6 border-2 rounded-xl transition-all flex items-center gap-4 ${
-                    paymentMethod === "place"
-                      ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div
-                    className="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
-                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                  >
-                    💵
-                  </div>
-                  <div className="text-left flex-1">
-                    <h3 className="mb-1 text-[var(--gbh-black-soft)]">Paiement sur place</h3>
-                    <p className="text-sm text-[var(--gbh-gray-text)]">
-                      À régler lors du rendez-vous
-                    </p>
-                  </div>
-                  <div
-                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === "place"
-                        ? "border-[var(--gbh-magenta)]"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    {paymentMethod === "place" && (
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: "var(--gbh-magenta)" }}
-                      ></div>
-                    )}
-                  </div>
-                </button>
-              </div>
-
-              <div className="mt-8">
-                <Button
-                  className="w-full py-6 rounded-full"
-                  size="lg"
-                  style={{ backgroundColor: "var(--gbh-magenta)" }}
-                  onClick={() => {
-                    alert(
-                      "Rendez-vous confirmé ! Vous recevrez une confirmation par email.",
-                    );
-                    onNavigate("home");
-                  }}
-                >
-                  {paymentMethod === "online"
-                    ? "Procéder au paiement"
-                    : "Confirmer le rendez-vous"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {currentStep < 5 && (
-          <div className="flex gap-4">
-            {currentStep > 1 && (
+            {step < 5 && (
               <Button
-                onClick={prevStep}
-                variant="outline"
-                className="flex-1 rounded-full"
+                type="button"
+                onClick={() => setStep((prev) => Math.min(5, prev + 1))}
+                disabled={!canProceedFromStep(step)}
+                className="rounded-full shadow-md"
+                style={{ backgroundColor: "var(--gbh-magenta)" }}
               >
-                <span aria-hidden="true" className="mr-2">
-                  ←
-                </span>
-                Précédent
+                Continuer
               </Button>
             )}
-            <Button
-              onClick={nextStep}
-              disabled={!canProceedFromStep(currentStep)}
-              className="flex-1 rounded-full"
-              style={{ backgroundColor: "var(--gbh-magenta)" }}
-            >
-              Suivant
-              <span aria-hidden="true" className="ml-2">
-                →
-              </span>
-            </Button>
+
+            {step === 5 && (
+              <Button
+                type="button"
+                onClick={handleConfirm}
+                disabled={isBooking || isPaying}
+                className="rounded-full shadow-md"
+                style={{ backgroundColor: "var(--gbh-magenta)" }}
+              >
+                {isBooking || isPaying ? "Traitement..." : "Confirmer le rendez-vous"}
+              </Button>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
