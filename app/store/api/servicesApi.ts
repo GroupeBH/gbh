@@ -9,10 +9,7 @@ export const servicesApi = createApi({
   tagTypes: ["Services"],
   endpoints: (builder) => ({
     getServices: builder.query<ServicesResponse, void>({
-      query: () => ({
-        url: "services",
-        credentials: "omit",
-      }),
+      query: () => "services",
       providesTags: ["Services"],
     }),
     adminCreateService: builder.mutation<Service, Partial<Service>>({

@@ -1,36 +1,56 @@
 ﻿import { Button } from "./ui/button";
+import { useMemo } from "react";
+import { useGetServicesQuery, type Service } from "../store/api";
 
 interface OrganisationsPageProps {
   onNavigate: (page: string) => void;
 }
 
+const iconForService = (service: Service) => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  if (key.includes("conseil")) return "💼";
+  if (key.includes("intelligence")) return "🧠";
+  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
+    return "💻";
+  }
+  if (key.includes("recrutement")) return "👥";
+  if (key.includes("formation")) return "🎓";
+  if (key.includes("fourniture")) return "📦";
+  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
+  if (key.includes("fiscal")) return "🧾";
+  if (key.includes("voyage")) return "✈️";
+  if (key.includes("commission") || key.includes("vente")) return "🤝";
+  return "✨";
+};
+
+const isForOrganizations = (service: Service) => {
+  const audience = (service.forAudience || "").toLowerCase();
+  if (!audience) return true;
+  return (
+    audience.includes("organis") ||
+    audience.includes("entreprise") ||
+    audience.includes("institution") ||
+    audience.includes("business") ||
+    audience.includes("pro") ||
+    audience.includes("tous") ||
+    audience.includes("all") ||
+    audience.includes("both")
+  );
+};
+
 export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
-  const services = [
-    {
-      icon: "💼",
-      title: "Conseil & Consulting",
-      description:
-        "Accompagnement stratégique pour entreprises et institutions. Nous vous aidons à définir et mettre en œuvre vos orientations stratégiques.",
-    },
-    {
-      icon: "🧠",
-      title: "Intelligence & Laboratoire numérique",
-      description:
-        "Solutions d'analyse avancée, business intelligence et innovation technologique pour optimiser vos opérations.",
-    },
-    {
-      icon: "👥",
-      title: "Recrutement & Formation",
-      description:
-        "Services de recrutement professionnel et programmes de formation sur mesure pour développer vos équipes.",
-    },
-    {
-      icon: "📦",
-      title: "Fourniture de biens meubles et immeubles",
-      description:
-        "Approvisionnement et fourniture de biens professionnels de qualité pour vos projets et infrastructures.",
-    },
-  ];
+  const { data, isLoading, isError } = useGetServicesQuery();
+
+  const services = useMemo(() => {
+    return (data?.services ?? [])
+      .filter(isForOrganizations)
+      .map((service, index) => ({
+        id: service.id || service._id || service.slug || String(index),
+        icon: iconForService(service),
+        title: service.name,
+        description: service.description || "Description à venir.",
+      }));
+  }, [data]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
@@ -64,27 +84,45 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          {services.map((service, index) => (
-            <div
-              key={index}
-              className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
-            >
+        {isLoading && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Chargement des domaines...
+          </div>
+        )}
+        {!isLoading && isError && (
+          <div className="text-center text-rose-600 mb-8">
+            Impossible de charger les domaines. Vérifiez que l'API est en ligne.
+          </div>
+        )}
+        {!isLoading && !isError && services.length === 0 && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Aucun domaine disponible pour le moment.
+          </div>
+        )}
+
+        {services.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {services.map((service) => (
               <div
-                className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
-                style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                key={service.id}
+                className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
               >
-                {service.icon}
+                <div
+                  className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
+                  style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                >
+                  {service.icon}
+                </div>
+                <h3 className="mb-4 text-[var(--gbh-black-soft)]">
+                  {service.title}
+                </h3>
+                <p className="text-[var(--gbh-gray-text)] leading-relaxed">
+                  {service.description}
+                </p>
               </div>
-              <h3 className="mb-4 text-[var(--gbh-black-soft)]">
-                {service.title}
-              </h3>
-              <p className="text-[var(--gbh-gray-text)] leading-relaxed">
-                {service.description}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div
           className="rounded-3xl p-10 md:p-12 mb-12 shadow-xl"
@@ -155,3 +193,5 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
     </div>
   );
 }
+
+

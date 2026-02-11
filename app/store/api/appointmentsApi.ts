@@ -3,6 +3,11 @@
 import { baseQuery } from "./baseQuery";
 import type { Appointment, AppointmentsResponse } from "./types";
 
+type CreateAppointmentResponse = {
+  appointment: Appointment;
+  availableSlots?: string[];
+};
+
 export const appointmentsApi = createApi({
   reducerPath: "appointmentsApi",
   baseQuery,
@@ -17,6 +22,8 @@ export const appointmentsApi = createApi({
         method: "POST",
         body,
       }),
+      transformResponse: (response: Appointment | CreateAppointmentResponse) =>
+        "appointment" in response ? response.appointment : response,
       invalidatesTags: ["Appointments"],
     }),
     getAppointment: builder.query<Appointment, string>({

@@ -14,113 +14,6 @@ type Domaine = {
   features: string[];
 };
 
-const fallbackDomaines: Domaine[] = [
-  {
-    id: "conseil",
-    icon: "💼",
-    title: "Conseil stratégique",
-    description:
-      "Accompagnement dans la définition et la mise en œuvre de stratégies efficaces pour particuliers et organisations.",
-    features: ["Audit stratégique", "Plans d'action", "Suivi personnalisé"],
-  },
-  {
-    id: "intelligence",
-    icon: "🧠",
-    title: "Intelligence opérationnelle",
-    description:
-      "Solutions d'analyse avancée et d'optimisation des processus pour maximiser votre performance.",
-    features: [
-      "Business Intelligence",
-      "Analyse de données",
-      "Optimisation processus",
-    ],
-  },
-  {
-    id: "numerique",
-    icon: "💻",
-    title: "Laboratoire numérique",
-    description:
-      "Innovation technologique et transformation digitale adaptées à vos besoins spécifiques.",
-    features: [
-      "Développement sur mesure",
-      "Innovation tech",
-      "Transformation digitale",
-    ],
-  },
-  {
-    id: "recrutement",
-    icon: "👥",
-    title: "Recrutement",
-    description:
-      "Sélection et placement de talents qualifiés pour renforcer vos équipes.",
-    features: ["Sourcing de talents", "Évaluation candidats", "Placement professionnel"],
-  },
-  {
-    id: "formation",
-    icon: "🎓",
-    title: "Formation",
-    description:
-      "Programmes de formation professionnelle pour développer les compétences de vos équipes.",
-    features: ["Formation sur mesure", "Certification", "Coaching professionnel"],
-  },
-  {
-    id: "fourniture",
-    icon: "📦",
-    title: "Fourniture de biens et services",
-    description:
-      "Approvisionnement en biens meubles et immeubles de qualité pour vos projets.",
-    features: [
-      "Biens meubles",
-      "Biens immeubles",
-      "Équipements professionnels",
-    ],
-  },
-  {
-    id: "entrepreneuriat",
-    icon: "🚀",
-    title: "Entrepreneuriat",
-    description:
-      "Accompagnement complet pour créer, développer et pérenniser votre entreprise.",
-    features: [
-      "Création d'entreprise",
-      "Développement business",
-      "Stratégie de croissance",
-    ],
-  },
-  {
-    id: "fiscalite",
-    icon: "🧾",
-    title: "Fiscalité",
-    description:
-      "Conseil fiscal et optimisation de votre situation fiscale pour particuliers et organisations.",
-    features: ["Conseil fiscal", "Optimisation fiscale", "Conformité réglementaire"],
-  },
-  {
-    id: "voyage",
-    icon: "✈️",
-    title: "Voyage",
-    description:
-      "Organisation et conseil pour vos déplacements professionnels et personnels.",
-    features: [
-      "Organisation de voyages",
-      "Conseil visa",
-      "Logistique déplacements",
-    ],
-  },
-  {
-    id: "commission",
-    icon: "🤝",
-    title: "Commission acquisition ou vente",
-    description:
-      "Accompagnement dans toutes vos transactions de biens meubles et immeubles.",
-    features: [
-      "Transactions immobilières",
-      "Évaluation de biens",
-      "Négociation",
-    ],
-  },
-];
-
 const iconForService = (service: Service) => {
   const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
   if (key.includes("conseil")) return "💼";
@@ -166,14 +59,10 @@ const featureForService = (service: Service) => {
 };
 
 export function DomainesPage({ onNavigate }: DomainesPageProps) {
-  const { data, isLoading } = useGetServicesQuery();
+  const { data, isLoading, isError } = useGetServicesQuery();
 
   const domaines = useMemo(() => {
-    if (!data?.services?.length) {
-      return fallbackDomaines;
-    }
-
-    return data.services.map((service, index) => ({
+    return (data?.services ?? []).map((service, index) => ({
       id: service.id || service._id || service.slug || String(index),
       icon: iconForService(service),
       title: service.name,
@@ -200,56 +89,68 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
             Chargement des domaines...
           </div>
         )}
+        {!isLoading && isError && (
+          <div className="text-center text-rose-600 mb-8">
+            Impossible de charger les domaines. Vérifiez que l'API est en ligne.
+          </div>
+        )}
+        {!isLoading && !isError && domaines.length === 0 && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Aucun domaine disponible pour le moment.
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-          {domaines.map((domaine) => (
-            <div
-              key={domaine.id}
-              className="bg-white border-2 border-gray-200 rounded-2xl p-8 hover:shadow-2xl transition-all hover:border-[var(--gbh-magenta)] group"
-            >
+        {domaines.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            {domaines.map((domaine) => (
               <div
-                className="w-16 h-16 rounded-xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
-                style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                key={domaine.id}
+                className="bg-white border-2 border-gray-200 rounded-2xl p-8 hover:shadow-2xl transition-all hover:border-[var(--gbh-magenta)] group"
               >
-                {domaine.icon}
+                <div
+                  className="w-16 h-16 rounded-xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
+                  style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                >
+                  {domaine.icon}
+                </div>
+
+                <h3 className="mb-4 text-[var(--gbh-black-soft)]">
+                  {domaine.title}
+                </h3>
+
+                <p className="text-[var(--gbh-gray-text)] mb-6">
+                  {domaine.description}
+                </p>
+
+                <div className="space-y-2 mb-6">
+                  {domaine.features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: "var(--gbh-magenta)" }}
+                      ></div>
+                      <span className="text-sm text-[var(--gbh-gray-text)]">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button
+                  onClick={() => onNavigate("rdv")}
+                  variant="outline"
+                  className="w-full"
+                  style={{
+                    borderColor: "var(--gbh-magenta)",
+                    color: "var(--gbh-magenta)",
+                  }}
+                >
+                  Prendre rendez-vous
+                </Button>
               </div>
-
-              <h3 className="mb-4 text-[var(--gbh-black-soft)]">
-                {domaine.title}
-              </h3>
-
-              <p className="text-[var(--gbh-gray-text)] mb-6">
-                {domaine.description}
-              </p>
-
-              <div className="space-y-2 mb-6">
-                {domaine.features.map((feature) => (
-                  <div key={feature} className="flex items-center gap-2">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full"
-                      style={{ backgroundColor: "var(--gbh-magenta)" }}
-                    ></div>
-                    <span className="text-sm text-[var(--gbh-gray-text)]">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                onClick={() => onNavigate("rdv")}
-                variant="outline"
-                className="w-full"
-                style={{
-                  borderColor: "var(--gbh-magenta)",
-                  color: "var(--gbh-magenta)",
-                }}
-              >
-                Prendre rendez-vous
-              </Button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <div
           className="rounded-2xl p-12 text-center"

@@ -19,7 +19,8 @@ interface AdminPageProps {
   onNavigate: (page: string) => void;
 }
 
-type AppointmentStatus = "confirmé" | "en attente" | "annulé";
+type AppointmentStatus = "réservé" | "en attente" | "confirmé" | "autre";
+type AppointmentFilter = "tous" | AppointmentStatus;
 
 type AppointmentRow = {
   id: string;
@@ -40,15 +41,24 @@ type MessageRow = {
 };
 
 const statusStyles: Record<AppointmentStatus, string> = {
+  "réservé": "bg-blue-100 text-blue-700",
   "confirmé": "bg-emerald-100 text-emerald-700",
   "en attente": "bg-amber-100 text-amber-700",
-  "annulé": "bg-rose-100 text-rose-700",
+  "autre": "bg-slate-100 text-slate-700",
 };
 
 const mapStatus = (status?: string): AppointmentStatus => {
-  if (status === "booked") return "confirmé";
-  if (status === "canceled") return "annulé";
-  return "en attente";
+  const value = (status || "").toLowerCase();
+  if (value === "booked" || value === "reserved" || value === "created") {
+    return "réservé";
+  }
+  if (value === "confirmed" || value === "confirmé") {
+    return "confirmé";
+  }
+  if (value === "pending" || value === "en_attente" || value === "awaiting") {
+    return "en attente";
+  }
+  return "autre";
 };
 
 export function AdminPage({ onNavigate }: AdminPageProps) {
@@ -59,6 +69,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [credentials, setCredentials] = useState({ username: "", password: "" });
   const [blockForm, setBlockForm] = useState({ date: "", time: "", reason: "" });
   const [blockMessage, setBlockMessage] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<AppointmentFilter>("tous");
 
   const [login, loginState] = useAdminLoginMutation();
   const [refresh] = useAdminRefreshMutation();
@@ -112,15 +123,42 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     });
   }, [appointmentsData, serviceMap]);
 
+  const statusCounts = useMemo(() => {
+    const reserved = appointmentRows.filter((item) => item.status === "réservé").length;
+    const pending = appointmentRows.filter((item) => item.status === "en attente").length;
+    const confirmed = appointmentRows.filter((item) => item.status === "confirmé").length;
+    const other = appointmentRows.filter((item) => item.status === "autre").length;
+    return { reserved, pending, confirmed, other };
+  }, [appointmentRows]);
+
+  const statusSummary = useMemo(
+    () => [
+      { key: "réservé" as const, label: "Réservés", value: statusCounts.reserved },
+      { key: "en attente" as const, label: "En attente", value: statusCounts.pending },
+      { key: "confirmé" as const, label: "Confirmés", value: statusCounts.confirmed },
+      { key: "autre" as const, label: "Autres", value: statusCounts.other },
+    ],
+    [statusCounts],
+  );
+
+  const statusFilters = useMemo(
+    () => [
+      { key: "tous" as const, label: "Tous", value: appointmentRows.length },
+      ...statusSummary,
+    ],
+    [appointmentRows.length, statusSummary],
+  );
+
   const filteredAppointments = useMemo(() => {
     const lower = search.toLowerCase();
     return appointmentRows.filter(
       (appointment) =>
-        appointment.name.toLowerCase().includes(lower) ||
-        appointment.service.toLowerCase().includes(lower) ||
-        appointment.id.toLowerCase().includes(lower),
+        (statusFilter === "tous" || appointment.status === statusFilter) &&
+        (appointment.name.toLowerCase().includes(lower) ||
+          appointment.service.toLowerCase().includes(lower) ||
+          appointment.id.toLowerCase().includes(lower)),
     );
-  }, [appointmentRows, search]);
+  }, [appointmentRows, search, statusFilter]);
 
   const messageRows: MessageRow[] = useMemo(() => {
     if (!contactsData?.contacts?.length) {
@@ -356,6 +394,34 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </div>
             </div>
 
+            <div className="rounded-3xl bg-white p-8 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl text-[var(--gbh-black-soft)]">
+                    Statut des rendez-vous
+                  </h2>
+                  <p className="text-sm text-[var(--gbh-gray-text)]">
+                    Répartition actuelle des rendez-vous par statut.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                {statusSummary.map((status) => (
+                  <div
+                    key={status.key}
+                    className="rounded-2xl border border-gray-100 p-5 shadow-sm"
+                  >
+                    <p className="text-sm text-[var(--gbh-gray-text)]">
+                      {status.label}
+                    </p>
+                    <p className="text-3xl font-semibold text-[var(--gbh-black-soft)]">
+                      {status.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <div className="xl:col-span-2 rounded-3xl bg-white p-8 shadow-2xl">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -376,6 +442,26 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       placeholder="Rechercher un RDV"
                     />
                   </div>
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {statusFilters.map((filter) => {
+                    const isActive = statusFilter === filter.key;
+                    return (
+                      <button
+                        key={filter.key}
+                        type="button"
+                        onClick={() => setStatusFilter(filter.key)}
+                        className={`rounded-full px-4 py-2 text-xs font-semibold border transition-all ${
+                          isActive
+                            ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                            : "bg-white border-gray-200 text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)]"
+                        }`}
+                      >
+                        {filter.label} ({filter.value})
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {isLoadingAppointments && (

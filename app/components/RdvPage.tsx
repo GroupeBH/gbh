@@ -27,98 +27,21 @@ type ServiceOption = {
   duration: string;
 };
 
-const fallbackServices: ServiceOption[] = [
-  {
-    id: "conseil",
-    name: "Conseil stratégique",
-    description: "Accompagnement personnalisé pour vos projets professionnels",
-    category: "Conseil",
-    forAudience: "Particuliers & Organisations",
-    price: 125000,
-    duration: "60 min",
-  },
-  {
-    id: "intelligence",
-    name: "Intelligence opérationnelle",
-    description: "Audit et optimisation de vos processus internes",
-    category: "Intelligence",
-    forAudience: "Organisations",
-    price: 150000,
-    duration: "75 min",
-  },
-  {
-    id: "numerique",
-    name: "Laboratoire numérique",
-    description: "Solutions digitales adaptées à vos besoins",
-    category: "Numérique",
-    forAudience: "Particuliers & Organisations",
-    price: 90000,
-    duration: "60 min",
-  },
-  {
-    id: "recrutement",
-    name: "Recrutement",
-    description: "Sélection et placement de talents",
-    category: "Recrutement",
-    forAudience: "Organisations",
-    price: 110000,
-    duration: "45 min",
-  },
-  {
-    id: "formation",
-    name: "Formation",
-    description: "Montée en compétences sur mesure",
-    category: "Formation",
-    forAudience: "Particuliers & Organisations",
-    price: 80000,
-    duration: "90 min",
-  },
-  {
-    id: "fourniture",
-    name: "Fourniture de biens",
-    description: "Approvisionnement fiable en biens et services",
-    category: "Fourniture",
-    forAudience: "Organisations",
-    price: 70000,
-    duration: "45 min",
-  },
-  {
-    id: "entrepreneuriat",
-    name: "Entrepreneuriat",
-    description: "Structuration et croissance de votre activité",
-    category: "Business",
-    forAudience: "Particuliers",
-    price: 95000,
-    duration: "60 min",
-  },
-  {
-    id: "fiscalite",
-    name: "Fiscalité",
-    description: "Optimisation fiscale et conformité",
-    category: "Fiscalité",
-    forAudience: "Particuliers & Organisations",
-    price: 105000,
-    duration: "60 min",
-  },
-  {
-    id: "voyage",
-    name: "Voyage",
-    description: "Organisation et conseil sur vos déplacements",
-    category: "Voyage",
-    forAudience: "Particuliers",
-    price: 65000,
-    duration: "30 min",
-  },
-  {
-    id: "commission",
-    name: "Commission acquisition/vente",
-    description: "Assistance dans vos transactions",
-    category: "Commission",
-    forAudience: "Particuliers & Organisations",
-    price: 120000,
-    duration: "60 min",
-  },
-];
+type AppointmentConfirmation = {
+  id: string;
+  serviceName: string;
+  date: string;
+  time: string;
+  type: "online" | "presentiel";
+  paymentMethod: "online" | "place";
+  price: number;
+  contact: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  paymentStatus: string;
+};
 
 const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 const monthNames = [
@@ -225,7 +148,7 @@ const mapServiceToOption = (service: Service, index: number): ServiceOption => {
 };
 
 export function RdvPage({ onNavigate }: RdvPageProps) {
-  const { data: servicesData, isLoading: isServicesLoading } =
+  const { data: servicesData, isLoading: isServicesLoading, isError: isServicesError } =
     useGetServicesQuery();
   const [createAppointment, { isLoading: isBooking }] =
     useCreateAppointmentMutation();
@@ -247,16 +170,15 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   });
   const [bookingMessage, setBookingMessage] = useState<string | null>(null);
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+  const [confirmation, setConfirmation] =
+    useState<AppointmentConfirmation | null>(null);
 
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
   const services: ServiceOption[] = useMemo(() => {
-    if (servicesData?.services?.length) {
-      return servicesData.services.map(mapServiceToOption);
-    }
-    return fallbackServices;
+    return (servicesData?.services ?? []).map(mapServiceToOption);
   }, [servicesData]);
 
   useEffect(() => {
@@ -397,6 +319,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
       }).unwrap();
 
       const appointmentId = appointment.id || appointment._id || "";
+      let paymentStatus = "";
 
       if (paymentMethod === "online" && appointmentId) {
         const intent = await createPaymentIntent({
@@ -404,19 +327,31 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
         }).unwrap();
 
         if (intent.status === "created") {
-          setPaymentMessage(
-            `Paiement en ligne initié. Montant: ${formatCurrency(intent.amount)}.`,
-          );
+          paymentStatus = `Paiement en ligne initié. Montant: ${formatCurrency(intent.amount)}.`;
+          setPaymentMessage(paymentStatus);
         } else {
-          setPaymentMessage("Paiement en ligne non requis.");
+          paymentStatus = "Paiement en ligne non requis.";
+          setPaymentMessage(paymentStatus);
         }
       } else {
-        setPaymentMessage("Paiement sur place confirmé.");
+        paymentStatus = "Paiement sur place confirmé.";
+        setPaymentMessage(paymentStatus);
       }
 
       setBookingMessage(
         "Votre rendez-vous est confirmé. Nous vous contacterons rapidement.",
       );
+      setConfirmation({
+        id: appointmentId || "—",
+        serviceName: selectedService.name,
+        date: selectedDate,
+        time: selectedTime,
+        type: appointmentType,
+        paymentMethod,
+        price: selectedService.price,
+        contact: { ...contactInfo },
+        paymentStatus,
+      });
     } catch {
       setBookingMessage(
         "Impossible de réserver pour le moment. Merci de réessayer.",
@@ -520,6 +455,16 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
               {isServicesLoading && (
                 <p className="text-[var(--gbh-gray-text)] mb-6">
                   Chargement des services...
+                </p>
+              )}
+              {!isServicesLoading && isServicesError && (
+                <p className="text-rose-600 mb-6">
+                  Impossible de charger les services. Vérifiez que l'API est en ligne.
+                </p>
+              )}
+              {!isServicesLoading && !isServicesError && services.length === 0 && (
+                <p className="text-[var(--gbh-gray-text)] mb-6">
+                  Aucun service disponible pour le moment.
                 </p>
               )}
 
@@ -1064,6 +1009,132 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           </div>
         </div>
       </div>
+      {confirmation && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Rendez-vous réservé"
+          onClick={() => setConfirmation(null)}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <div
+                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
+                  style={{
+                    backgroundColor: "var(--gbh-magenta-light)",
+                    color: "var(--gbh-magenta)",
+                  }}
+                >
+                  ✅ Rendez-vous réservé
+                </div>
+                <h3 className="mt-3 text-2xl text-[var(--gbh-black-soft)]">
+                  Votre réservation est confirmée
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                onClick={() => setConfirmation(null)}
+              >
+                Fermer
+              </button>
+            </div>
+
+            <div className="px-8 py-6 grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Service
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                    {confirmation.serviceName}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Date & heure
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                    {formatDateDisplay(confirmation.date)} · {confirmation.time}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Type
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                    {confirmation.type === "online" ? "En ligne" : "Présentiel"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Référence
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                    {confirmation.id}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Paiement
+                  </div>
+                  <div className="text-sm text-[var(--gbh-black-soft)]">
+                    {confirmation.paymentStatus}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Total
+                  </div>
+                  <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                    {formatCurrency(confirmation.price)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-8 pb-8">
+              <div className="rounded-2xl bg-[var(--gbh-gray-ui)]/70 p-4 text-sm text-[var(--gbh-gray-text)]">
+                Nous avons bien enregistré vos coordonnées ({confirmation.contact.name},{" "}
+                {confirmation.contact.email}, {confirmation.contact.phone}). Nous vous
+                contacterons avant le rendez-vous.
+              </div>
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Button
+                  type="button"
+                  className="rounded-full shadow-md"
+                  style={{ backgroundColor: "var(--gbh-magenta)" }}
+                  onClick={() => {
+                    setConfirmation(null);
+                    onNavigate("home");
+                  }}
+                >
+                  Retour à l'accueil
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  style={{ borderColor: "var(--gbh-magenta)", color: "var(--gbh-magenta)" }}
+                  onClick={() => onNavigate("contact")}
+                >
+                  Besoin d'aide ?
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+

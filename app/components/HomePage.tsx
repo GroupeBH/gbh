@@ -1,10 +1,50 @@
 ﻿import { Button } from "./ui/button";
+import { useMemo } from "react";
+import { useGetServicesQuery, type Service } from "../store/api";
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
 }
 
+const iconForService = (service: Service) => {
+  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
+  if (key.includes("conseil")) return "💼";
+  if (key.includes("intelligence")) return "🧠";
+  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
+    return "💻";
+  }
+  if (key.includes("recrutement")) return "👥";
+  if (key.includes("formation")) return "🎓";
+  if (key.includes("fourniture")) return "📦";
+  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
+  if (key.includes("fiscal")) return "🧾";
+  if (key.includes("voyage")) return "✈️";
+  if (key.includes("commission") || key.includes("vente")) return "🤝";
+  return "✨";
+};
+
 export function HomePage({ onNavigate }: HomePageProps) {
+  const { data, isLoading, isError } = useGetServicesQuery();
+
+  const domaines = useMemo(() => {
+    return (data?.services ?? []).map((service, index) => ({
+      id: service.id || service._id || service.slug || String(index),
+      title: service.name,
+      description: service.description || "Description à venir.",
+      icon: iconForService(service),
+    }));
+  }, [data]);
+
+  const heroLine = useMemo(() => {
+    const labels = (data?.services ?? [])
+      .map((service) => service.category || service.name)
+      .filter(Boolean)
+      .map((label) => String(label).trim())
+      .filter(Boolean);
+    const unique = Array.from(new Set(labels));
+    return unique.slice(0, 4).join(" • ");
+  }, [data]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
@@ -34,7 +74,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
               className="text-2xl md:text-3xl mb-4"
               style={{ color: "var(--gbh-magenta)" }}
             >
-              Conseil • Intelligence • Numérique • Fourniture
+              {heroLine || "Nos services professionnels"}
             </p>
             <p className="text-xl mb-12 text-[var(--gbh-gray-text)] leading-relaxed">
               Une entreprise multiservices au service des particuliers et des
@@ -140,81 +180,45 @@ export function HomePage({ onNavigate }: HomePageProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Conseil stratégique",
-                description:
-                  "Accompagnement professionnel pour vos projets stratégiques",
-                icon: "💼",
-              },
-              {
-                title: "Intelligence opérationnelle",
-                description:
-                  "Solutions d'analyse et d'optimisation de vos processus",
-                icon: "🧠",
-              },
-              {
-                title: "Laboratoire numérique",
-                description:
-                  "Innovation technologique et transformation digitale",
-                icon: "💻",
-              },
-              {
-                title: "Recrutement",
-                description: "Sélection et placement de talents qualifiés",
-                icon: "👥",
-              },
-              {
-                title: "Formation",
-                description: "Programmes de formation sur mesure",
-                icon: "🎓",
-              },
-              {
-                title: "Fourniture",
-                description: "Biens meubles et immeubles de qualité",
-                icon: "📦",
-              },
-              {
-                title: "Entrepreneuriat",
-                description: "Accompagnement à la création d'entreprise",
-                icon: "🚀",
-              },
-              {
-                title: "Fiscalité",
-                description: "Conseil fiscal et optimisation",
-                icon: "🧾",
-              },
-              {
-                title: "Voyage",
-                description: "Organisation de vos déplacements",
-                icon: "✈️",
-              },
-              {
-                title: "Commission acquisition/vente",
-                description: "Transactions de biens meubles et immeubles",
-                icon: "🤝",
-              },
-            ].map((service, index) => (
-              <div
-                key={index}
-                className="group bg-gradient-to-br from-white to-gray-50 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-[var(--gbh-magenta)]"
-              >
+          {isLoading && (
+            <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+              Chargement des domaines...
+            </div>
+          )}
+          {!isLoading && isError && (
+            <div className="text-center text-rose-600 mb-8">
+              Impossible de charger les domaines. Vérifiez que l'API est en ligne.
+            </div>
+          )}
+          {!isLoading && !isError && domaines.length === 0 && (
+            <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+              Aucun domaine disponible pour le moment.
+            </div>
+          )}
+
+          {domaines.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {domaines.map((service) => (
                 <div
-                  className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
-                  style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                  key={service.id}
+                  className="group bg-gradient-to-br from-white to-gray-50 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-[var(--gbh-magenta)]"
                 >
-                  {service.icon}
+                  <div
+                    className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                  >
+                    {service.icon}
+                  </div>
+                  <h3 className="mb-3 text-[var(--gbh-black-soft)]">
+                    {service.title}
+                  </h3>
+                  <p className="text-[var(--gbh-gray-text)] leading-relaxed">
+                    {service.description}
+                  </p>
                 </div>
-                <h3 className="mb-3 text-[var(--gbh-black-soft)]">
-                  {service.title}
-                </h3>
-                <p className="text-[var(--gbh-gray-text)] leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -250,3 +254,4 @@ export function HomePage({ onNavigate }: HomePageProps) {
     </div>
   );
 }
+

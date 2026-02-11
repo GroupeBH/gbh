@@ -16,84 +16,6 @@ type Domaine = {
   keywords: string[];
 };
 
-const fallbackDomaines: Domaine[] = [
-  {
-    id: "conseil",
-    title: "Conseil stratégique",
-    description:
-      "Accompagnement personnalisé pour vos projets professionnels et personnels",
-    icon: "💼",
-    keywords: ["conseil", "stratégie", "accompagnement"],
-  },
-  {
-    id: "intelligence",
-    title: "Intelligence opérationnelle",
-    description: "Analyse et optimisation de vos processus",
-    icon: "🧠",
-    keywords: ["intelligence", "analyse", "optimisation"],
-  },
-  {
-    id: "numerique",
-    title: "Laboratoire numérique",
-    description: "Solutions numériques et développement technologique",
-    icon: "💻",
-    keywords: ["numérique", "technologie", "digital", "développement"],
-  },
-  {
-    id: "recrutement",
-    title: "Recrutement",
-    description: "Aide au recrutement et placement professionnel",
-    icon: "👥",
-    keywords: ["recrutement", "emploi", "carrière"],
-  },
-  {
-    id: "formation",
-    title: "Formation",
-    description: "Formations professionnelles et développement de compétences",
-    icon: "🎓",
-    keywords: ["formation", "apprentissage", "compétences"],
-  },
-  {
-    id: "fourniture",
-    title: "Fourniture de biens",
-    description: "Fourniture de biens meubles et immeubles",
-    icon: "📦",
-    keywords: ["fourniture", "biens", "matériel"],
-  },
-  {
-    id: "entrepreneuriat",
-    title: "Entrepreneuriat",
-    description:
-      "Accompagnement à la création et au développement d'entreprise",
-    icon: "🚀",
-    keywords: ["entrepreneuriat", "startup", "entreprise", "business"],
-  },
-  {
-    id: "fiscalite",
-    title: "Fiscalité",
-    description:
-      "Conseil fiscal et optimisation de votre situation fiscale",
-    icon: "🧾",
-    keywords: ["fiscalité", "impôts", "taxes", "fiscal"],
-  },
-  {
-    id: "voyage",
-    title: "Voyage",
-    description:
-      "Organisation et conseil pour vos voyages professionnels et personnels",
-    icon: "✈️",
-    keywords: ["voyage", "déplacement", "tourisme", "visa"],
-  },
-  {
-    id: "commission",
-    title: "Commission acquisition ou vente",
-    description:
-      "Accompagnement dans l'achat ou la vente de biens meubles et immeubles",
-    icon: "🤝",
-    keywords: ["commission", "vente", "achat", "immobilier", "transaction"],
-  },
-];
-
 const iconForService = (service: Service) => {
   const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
   if (key.includes("conseil")) return "💼";
@@ -124,14 +46,10 @@ const isForIndividuals = (service: Service) => {
 
 export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data, isLoading } = useGetServicesQuery();
+  const { data, isLoading, isError } = useGetServicesQuery();
 
   const domaines = useMemo(() => {
-    if (!data?.services?.length) {
-      return fallbackDomaines;
-    }
-
-    return data.services
+    return (data?.services ?? [])
       .filter(isForIndividuals)
       .map((service, index) => ({
         id: service.id || service._id || service.slug || String(index),
@@ -154,6 +72,8 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
       );
     });
   }, [domaines, searchQuery]);
+
+  const hasServiceData = Boolean(data?.services?.length);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -206,50 +126,62 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
             Chargement des services...
           </div>
         )}
+        {!isLoading && isError && (
+          <div className="text-center text-rose-600 mb-8">
+            Impossible de charger les domaines. Vérifiez que l'API est en ligne.
+          </div>
+        )}
+        {!isLoading && !isError && !hasServiceData && (
+          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
+            Aucun domaine disponible pour le moment.
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredDomaines.map((domaine) => (
-            <div
-              key={domaine.id}
-              className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
-            >
-              <div className="flex items-start gap-4 mb-4">
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl group-hover:scale-110 transition-transform"
-                  style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                >
-                  {domaine.icon}
-                </div>
-                <div className="flex-1">
-                  <Badge
-                    className="mb-2 rounded-full"
-                    style={{
-                      backgroundColor: "var(--gbh-magenta-light)",
-                      color: "var(--gbh-magenta)",
-                    }}
-                  >
-                    Consultation particulière
-                  </Badge>
-                </div>
-              </div>
-              <h3 className="text-[var(--gbh-black-soft)] mb-3">
-                {domaine.title}
-              </h3>
-              <p className="text-[var(--gbh-gray-text)] mb-6 leading-relaxed">
-                {domaine.description}
-              </p>
-              <Button
-                onClick={() => onNavigate("rdv")}
-                className="w-full rounded-full shadow-md hover:shadow-lg transition-all"
-                style={{ backgroundColor: "var(--gbh-magenta)" }}
+        {filteredDomaines.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDomaines.map((domaine) => (
+              <div
+                key={domaine.id}
+                className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
               >
-                Consulter →
-              </Button>
-            </div>
-          ))}
-        </div>
+                <div className="flex items-start gap-4 mb-4">
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl group-hover:scale-110 transition-transform"
+                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
+                  >
+                    {domaine.icon}
+                  </div>
+                  <div className="flex-1">
+                    <Badge
+                      className="mb-2 rounded-full"
+                      style={{
+                        backgroundColor: "var(--gbh-magenta-light)",
+                        color: "var(--gbh-magenta)",
+                      }}
+                    >
+                      Consultation particulière
+                    </Badge>
+                  </div>
+                </div>
+                <h3 className="text-[var(--gbh-black-soft)] mb-3">
+                  {domaine.title}
+                </h3>
+                <p className="text-[var(--gbh-gray-text)] mb-6 leading-relaxed">
+                  {domaine.description}
+                </p>
+                <Button
+                  onClick={() => onNavigate("rdv")}
+                  className="w-full rounded-full shadow-md hover:shadow-lg transition-all"
+                  style={{ backgroundColor: "var(--gbh-magenta)" }}
+                >
+                  Consulter →
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
 
-        {filteredDomaines.length === 0 && (
+        {hasServiceData && filteredDomaines.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <p className="text-xl text-[var(--gbh-gray-text)]">
