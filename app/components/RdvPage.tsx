@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
@@ -173,6 +173,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
   const [confirmation, setConfirmation] =
     useState<AppointmentConfirmation | null>(null);
+  const actionRef = useRef<HTMLDivElement | null>(null);
 
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -234,6 +235,11 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     setSelectedTime("");
+  };
+
+  const scrollToActions = () => {
+    if (!actionRef.current) return;
+    actionRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
   const handleMonthChange = (direction: "prev" | "next") => {
@@ -476,7 +482,10 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                     <button
                       key={service.id}
                       type="button"
-                      onClick={() => setSelectedServiceId(service.id)}
+                      onClick={() => {
+                        setSelectedServiceId(service.id);
+                        requestAnimationFrame(scrollToActions);
+                      }}
                       className={`text-left rounded-3xl border-2 p-6 transition-all ${
                         isSelected
                           ? "border-[var(--gbh-magenta)] shadow-lg bg-[var(--gbh-magenta-light)]/30"
@@ -969,7 +978,10 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
             </div>
           )}
 
-          <div className="mt-10 flex flex-col sm:flex-row justify-between gap-4">
+          <div
+            ref={actionRef}
+            className="mt-10 flex flex-col sm:flex-row justify-between gap-4"
+          >
             <Button
               type="button"
               variant="outline"
@@ -1156,5 +1168,8 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
     </div>
   );
 }
+
+
+
 
 
