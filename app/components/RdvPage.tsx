@@ -154,6 +154,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
     useCreateAppointmentMutation();
   const [createPaymentIntent, { isLoading: isPaying }] =
     useCreatePaymentIntentMutation();
+  const isSubmitting = isBooking || isPaying;
 
   const [step, setStep] = useState(1);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
@@ -999,16 +1000,35 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
               <Button
                 type="button"
                 onClick={handleConfirm}
-                disabled={isBooking || isPaying}
+                disabled={isSubmitting}
                 className="rounded-full shadow-md"
                 style={{ backgroundColor: "var(--gbh-magenta)" }}
               >
-                {isBooking || isPaying ? "Traitement..." : "Confirmer le rendez-vous"}
+                {isSubmitting ? "Traitement..." : "Confirmer le rendez-vous"}
               </Button>
             )}
           </div>
         </div>
       </div>
+      {isSubmitting && (
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/30 px-4"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="rounded-3xl bg-white px-6 py-5 shadow-2xl flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full border-4 border-[var(--gbh-magenta-light)] border-t-[var(--gbh-magenta)] animate-spin"></div>
+            <div>
+              <p className="text-sm text-[var(--gbh-gray-text)]">
+                Traitement en cours...
+              </p>
+              <p className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                Merci de patienter
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       {confirmation && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
