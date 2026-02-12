@@ -26,10 +26,13 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
             onClick={() => onNavigate("home")}
           >
             <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all"
-              style={{ backgroundColor: "var(--gbh-magenta)" }}
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all bg-white"
             >
-              <span className="text-white text-xl font-bold">GBH</span>
+              <img
+                src="/gbh.png"
+                alt="GBH"
+                className="h-10 w-10 object-contain"
+              />
             </div>
             <div className="hidden sm:block">
               <div className="font-semibold text-[var(--gbh-black-soft)]">

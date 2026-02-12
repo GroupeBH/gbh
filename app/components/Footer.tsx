@@ -36,7 +36,7 @@
               </p>
               <p className="flex items-start gap-2">
                 <span>📧</span>
-                <span>contact@gbh-sarl.cd</span>
+                <span>contact@gbh.sarl</span>
               </p>
               <p className="flex items-start gap-2">
                 <span>📞</span>

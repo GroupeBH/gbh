@@ -68,7 +68,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <h3 className="mb-1 text-[var(--gbh-black-soft)]">Email</h3>
-                  <p className="text-[var(--gbh-gray-text)]">contact@gbh-sarl.cd</p>
+                  <p className="text-[var(--gbh-gray-text)]">contact@gbh.sarl</p>
                 </div>
               </div>
 
@@ -81,7 +81,7 @@ export function ContactPage() {
                 </div>
                 <div>
                   <h3 className="mb-1 text-[var(--gbh-black-soft)]">Téléphone</h3>
-                  <p className="text-[var(--gbh-gray-text)]">+243 XXX XXX XXX</p>
+                  <p className="text-[var(--gbh-gray-text)]">+243 999 403 012</p>
                 </div>
               </div>
             </div>
