@@ -809,7 +809,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                           borderColor: "var(--gbh-magenta)",
                           color: "var(--gbh-magenta)",
                         }}
-                        onClick={resetServiceForm}
+                        onClick={() => resetServiceForm()}
                       >
                         Nouveau
                       </Button>
@@ -835,7 +835,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                         borderColor: "var(--gbh-magenta)",
                         color: "var(--gbh-magenta)",
                       }}
-                      onClick={resetServiceForm}
+                      onClick={() => resetServiceForm()}
                     >
                       Nouveau service
                     </Button>
