@@ -10,6 +10,7 @@ import {
   paymentsApi,
   servicesApi,
 } from "./api";
+import { adminSessionMiddleware } from "./adminSessionMiddleware";
 import adminReducer from "./adminSlice";
 
 export const store = configureStore({
@@ -32,6 +33,7 @@ export const store = configureStore({
       paymentsApi.middleware,
       blocksApi.middleware,
       adminAuthApi.middleware,
+      adminSessionMiddleware,
     ),
 });
 

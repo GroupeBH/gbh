@@ -16,7 +16,7 @@ import {
   type Appointment,
 } from "../store/api";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { setAdminAuthenticated, setAdminSearch } from "../store/adminSlice";
+import { setAdminSearch } from "../store/adminSlice";
 
 interface AdminPageProps {
   onNavigate: (page: string) => void;
@@ -120,12 +120,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const isServiceSubmitting =
     createServiceState.isLoading || updateServiceState.isLoading;
 
-  useEffect(() => {
-    if (activeSection !== "appointments") {
-      setSelectedAppointment(null);
-    }
-  }, [activeSection]);
-
   const resetServiceForm = (options?: { keepMessage?: boolean }) => {
     setServiceForm({ ...emptyServiceForm });
     if (!options?.keepMessage) {
@@ -141,9 +135,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   useEffect(() => {
     refresh()
       .unwrap()
-      .then(() => dispatch(setAdminAuthenticated(true)))
-      .catch(() => dispatch(setAdminAuthenticated(false)));
-  }, [dispatch, refresh]);
+      .catch(() => undefined);
+  }, [refresh]);
 
   const serviceMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -281,18 +274,11 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
-    try {
-      await login(credentials).unwrap();
-      dispatch(setAdminAuthenticated(true));
-    } catch {
-      dispatch(setAdminAuthenticated(false));
-    }
+    await login(credentials).unwrap().catch(() => undefined);
   };
 
   const handleLogout = async () => {
     await logout().unwrap().catch(() => undefined);
-    dispatch(setAdminAuthenticated(false));
-    dispatch(setAdminSearch(""));
   };
 
   const handleBlockSubmit = async (event: React.FormEvent) => {
@@ -320,7 +306,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               Connexion administrateur
             </h1>
             <p className="mt-2 text-[var(--gbh-gray-text)]">
-              Cette zone est réservée à l'équipe GBH. Connectez-vous pour gérer les rendez-vous et les services.
+              Cette zone est réservée à l&apos;équipe GBH. Connectez-vous pour gérer les rendez-vous et les services.
             </p>
 
             <form className="mt-8 space-y-4" onSubmit={handleLogin}>
@@ -403,7 +389,12 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     <button
                       key={item.key}
                       type="button"
-                      onClick={() => setActiveSection(item.key)}
+                      onClick={() => {
+                        if (item.key !== "appointments") {
+                          setSelectedAppointment(null);
+                        }
+                        setActiveSection(item.key);
+                      }}
                       className={`w-full text-left rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
                         isActive
                           ? "bg-[var(--gbh-magenta)] text-white shadow"
@@ -461,7 +452,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                         Dashboard
                       </p>
                       <h1 className="text-3xl md:text-4xl text-[var(--gbh-black-soft)]">
-                        Vue d'ensemble de l'activité
+                        Vue d&apos;ensemble de l&apos;activité
                       </h1>
                       <p className="mt-2 text-[var(--gbh-gray-text)]">
                         Statut des rendez-vous, messages entrants et disponibilité.
@@ -849,7 +840,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   Paramètres
                 </h2>
                 <p className="text-sm text-[var(--gbh-gray-text)]">
-                  Ajustez les préférences de l'administration.
+                  Ajustez les préférences de l&apos;administration.
                 </p>
                 <div className="mt-6 rounded-2xl border border-gray-100 p-4 text-sm text-[var(--gbh-gray-text)]">
                   Paramètres à venir.
