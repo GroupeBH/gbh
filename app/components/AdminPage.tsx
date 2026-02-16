@@ -350,6 +350,17 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 {loginState.isLoading ? "Connexion..." : "Se connecter"}
               </Button>
             </form>
+
+            <div className="mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full rounded-full"
+                onClick={() => onNavigate("register")}
+              >
+                Acces inscription admin
+              </Button>
+            </div>
           </div>
         </div>
       </div>

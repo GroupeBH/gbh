@@ -6,6 +6,16 @@ export const adminAuthApi = createApi({
   reducerPath: "adminAuthApi",
   baseQuery,
   endpoints: (builder) => ({
+    adminRegister: builder.mutation<
+      { id?: string; _id?: string; username?: string; email?: string; role?: string },
+      { username: string; email?: string; password: string; setupKey: string }
+    >({
+      query: (body) => ({
+        url: "admin/register",
+        method: "POST",
+        body,
+      }),
+    }),
     adminLogin: builder.mutation<
       { status: string },
       { username: string; password: string }
@@ -32,6 +42,7 @@ export const adminAuthApi = createApi({
 });
 
 export const {
+  useAdminRegisterMutation,
   useAdminLoginMutation,
   useAdminRefreshMutation,
   useAdminLogoutMutation,

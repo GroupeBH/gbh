@@ -484,6 +484,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                       type="button"
                       onClick={() => {
                         setSelectedServiceId(service.id);
+                        setStep(2);
                         requestAnimationFrame(scrollToActions);
                       }}
                       className={`text-left rounded-3xl border-2 p-6 transition-all ${
