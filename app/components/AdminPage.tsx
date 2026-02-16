@@ -103,6 +103,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     useState<AppointmentRow | null>(null);
   const [serviceForm, setServiceForm] = useState({ ...emptyServiceForm });
   const [serviceMessage, setServiceMessage] = useState<string | null>(null);
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   const [login, loginState] = useAdminLoginMutation();
   const [refresh] = useAdminRefreshMutation();
@@ -130,6 +131,11 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     if (!options?.keepMessage) {
       setServiceMessage(null);
     }
+  };
+
+  const openCreateServiceModal = () => {
+    resetServiceForm();
+    setIsServiceModalOpen(true);
   };
 
   useEffect(() => {
@@ -225,10 +231,12 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         await updateService({ id: serviceForm.id, ...payload }).unwrap();
         resetServiceForm({ keepMessage: true });
         setServiceMessage("Service mis à jour avec succès.");
+        setIsServiceModalOpen(false);
       } else {
         await createService(payload).unwrap();
         resetServiceForm({ keepMessage: true });
         setServiceMessage("Service ajouté avec succès.");
+        setIsServiceModalOpen(false);
       }
     } catch {
       setServiceMessage("Impossible d'enregistrer le service.");
@@ -720,213 +728,117 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             )}
 
             {activeSection === "services" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="rounded-3xl bg-white p-8 shadow-2xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl text-[var(--gbh-black-soft)]">
-                        Ajouter / Modifier un service
-                      </h2>
-                      <p className="text-sm text-[var(--gbh-gray-text)]">
-                        Renseignez les informations du service.
-                      </p>
-                    </div>
-                    {serviceForm.id && (
-                      <Badge className="bg-[var(--gbh-magenta-light)] text-[var(--gbh-magenta)]">
-                        Mode édition
-                      </Badge>
-                    )}
+              <div className="rounded-3xl bg-white p-8 shadow-2xl">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl text-[var(--gbh-black-soft)]">
+                      Services existants
+                    </h2>
+                    <p className="text-sm text-[var(--gbh-gray-text)]">
+                      Gérez les services depuis la liste, puis ouvrez une modal pour créer ou modifier.
+                    </p>
                   </div>
-                  <form className="mt-6 space-y-4" onSubmit={handleServiceSubmit}>
-                    <Input
-                      placeholder="Nom du service"
-                      value={serviceForm.name}
-                      onChange={(event) =>
-                        setServiceForm({ ...serviceForm, name: event.target.value })
-                      }
-                      required
-                    />
-                    <Textarea
-                      placeholder="Description du service"
-                      value={serviceForm.description}
-                      onChange={(event) =>
-                        setServiceForm({
-                          ...serviceForm,
-                          description: event.target.value,
-                        })
-                      }
-                      required
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Input
-                        placeholder="Catégorie *"
-                        value={serviceForm.category}
-                        onChange={(event) =>
-                          setServiceForm({
-                            ...serviceForm,
-                            category: event.target.value,
-                          })
-                        }
-                        required
-                      />
-                      <Input
-                        placeholder="Public cible *"
-                        value={serviceForm.forAudience}
-                        onChange={(event) =>
-                          setServiceForm({
-                            ...serviceForm,
-                            forAudience: event.target.value,
-                          })
-                        }
-                        required
-                      />
-                    </div>
-                    <Input
-                      placeholder="Slug (optionnel)"
-                      value={serviceForm.slug}
-                      onChange={(event) =>
-                        setServiceForm({ ...serviceForm, slug: event.target.value })
-                      }
-                    />
-                    {serviceMessage && (
-                      <div
-                        className={`rounded-2xl px-4 py-3 text-sm ${
-                          createServiceState.error || updateServiceState.error
-                            ? "bg-rose-50 text-rose-700"
-                            : "bg-emerald-50 text-emerald-700"
-                        }`}
-                      >
-                        {serviceMessage}
-                      </div>
-                    )}
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <Button
-                        type="submit"
-                        className="rounded-full"
-                        style={{ backgroundColor: "var(--gbh-magenta)" }}
-                        disabled={isServiceSubmitting}
-                      >
-                        {isServiceSubmitting
-                          ? "Enregistrement..."
-                          : serviceForm.id
-                          ? "Mettre à jour"
-                          : "Ajouter le service"}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="rounded-full"
-                        style={{
-                          borderColor: "var(--gbh-magenta)",
-                          color: "var(--gbh-magenta)",
-                        }}
-                        onClick={() => resetServiceForm()}
-                      >
-                        Nouveau
-                      </Button>
-                    </div>
-                  </form>
+                  <Button
+                    size="sm"
+                    className="rounded-full"
+                    style={{ backgroundColor: "var(--gbh-magenta)" }}
+                    onClick={openCreateServiceModal}
+                  >
+                    Nouveau service
+                  </Button>
                 </div>
 
-                <div className="rounded-3xl bg-white p-8 shadow-2xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-2xl text-[var(--gbh-black-soft)]">
-                        Services existants
-                      </h2>
-                      <p className="text-sm text-[var(--gbh-gray-text)]">
-                        Cliquez sur un service pour le modifier.
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="rounded-full"
-                      style={{
-                        borderColor: "var(--gbh-magenta)",
-                        color: "var(--gbh-magenta)",
-                      }}
-                      onClick={() => resetServiceForm()}
-                    >
-                      Nouveau service
-                    </Button>
+                {serviceMessage && (
+                  <div
+                    className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
+                      createServiceState.error || updateServiceState.error
+                        ? "bg-rose-50 text-rose-700"
+                        : "bg-emerald-50 text-emerald-700"
+                    }`}
+                  >
+                    {serviceMessage}
                   </div>
+                )}
 
-                  <div className="mt-6 space-y-3">
-                    {(servicesData?.services || []).map((service) => {
-                      const serviceId =
-                        service.id || service._id || service.slug || service.name || "";
-                      const isSelected = serviceForm.id === serviceId;
-                      return (
-                        <div
-                          key={serviceId}
-                          className={`flex flex-col gap-3 rounded-2xl border p-4 transition-all ${
-                            isSelected
-                              ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/30"
-                              : "border-gray-100"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-4">
-                            <div>
-                              <p className="font-semibold text-[var(--gbh-black-soft)]">
-                                {service.name}
-                              </p>
-                              <p className="text-xs text-[var(--gbh-gray-text)]">
-                                {service.category || "Catégorie non définie"}
-                              </p>
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="rounded-full"
-                              style={{
-                                borderColor: "var(--gbh-magenta)",
-                                color: "var(--gbh-magenta)",
-                              }}
-                              onClick={() => {
-                                setServiceMessage(null);
-                                setServiceForm({
-                                  id: serviceId,
-                                  name: service.name || "",
-                                  description: service.description || "",
-                                  category: service.category || "",
-                                  forAudience: service.forAudience || "",
-                                  slug: service.slug || "",
-                                });
-                              }}
-                            >
-                              Modifier
-                            </Button>
-                          </div>
-                          {service.description && (
-                            <p className="text-sm text-[var(--gbh-gray-text)]">
-                              {service.description}
+                <div className="mt-6 space-y-3 max-h-[65vh] overflow-y-auto pr-1">
+                  {(servicesData?.services || []).map((service, index) => {
+                    const serviceId =
+                      service.id ||
+                      service._id ||
+                      service.slug ||
+                      service.name ||
+                      `service-${index}`;
+                    const isSelected = serviceForm.id === serviceId && isServiceModalOpen;
+                    return (
+                      <div
+                        key={serviceId}
+                        className={`flex flex-col gap-3 rounded-2xl border p-4 transition-all ${
+                          isSelected
+                            ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/30"
+                            : "border-gray-100"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="font-semibold text-[var(--gbh-black-soft)]">
+                              {service.name}
                             </p>
-                          )}
-                          {(service.forAudience || service.slug) && (
-                            <div className="flex flex-wrap gap-2 text-xs text-[var(--gbh-gray-text)]">
-                              {service.forAudience && (
-                                <span className="rounded-full bg-white px-3 py-1">
-                                  {service.forAudience}
-                                </span>
-                              )}
-                              {service.slug && (
-                                <span className="rounded-full bg-white px-3 py-1">
-                                  {service.slug}
-                                </span>
-                              )}
-                            </div>
-                          )}
+                            <p className="text-xs text-[var(--gbh-gray-text)]">
+                              {service.category || "Catégorie non définie"}
+                            </p>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="rounded-full"
+                            style={{
+                              borderColor: "var(--gbh-magenta)",
+                              color: "var(--gbh-magenta)",
+                            }}
+                            onClick={() => {
+                              setServiceMessage(null);
+                              setServiceForm({
+                                id: serviceId,
+                                name: service.name || "",
+                                description: service.description || "",
+                                category: service.category || "",
+                                forAudience: service.forAudience || "",
+                                slug: service.slug || "",
+                              });
+                              setIsServiceModalOpen(true);
+                            }}
+                          >
+                            Modifier
+                          </Button>
                         </div>
-                      );
-                    })}
+                        {service.description && (
+                          <p className="text-sm text-[var(--gbh-gray-text)]">
+                            {service.description}
+                          </p>
+                        )}
+                        {(service.forAudience || service.slug) && (
+                          <div className="flex flex-wrap gap-2 text-xs text-[var(--gbh-gray-text)]">
+                            {service.forAudience && (
+                              <span className="rounded-full bg-white px-3 py-1">
+                                {service.forAudience}
+                              </span>
+                            )}
+                            {service.slug && (
+                              <span className="rounded-full bg-white px-3 py-1">
+                                {service.slug}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
 
-                    {!servicesData?.services?.length && (
-                      <p className="text-sm text-[var(--gbh-gray-text)]">
-                        Aucun service chargé pour le moment.
-                      </p>
-                    )}
-                  </div>
+                  {!servicesData?.services?.length && (
+                    <p className="text-sm text-[var(--gbh-gray-text)]">
+                      Aucun service chargé pour le moment.
+                    </p>
+                  )}
                 </div>
               </div>
             )}
@@ -947,6 +859,133 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           </div>
         </div>
       </div>
+      {isServiceModalOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4 py-8"
+          role="dialog"
+          aria-modal="true"
+          aria-label={serviceForm.id ? "Modifier le service" : "Ajouter un service"}
+          onClick={() => {
+            setIsServiceModalOpen(false);
+            resetServiceForm();
+          }}
+        >
+          <div
+            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
+                  Catalogue services
+                </p>
+                <h3 className="mt-2 text-2xl text-[var(--gbh-black-soft)]">
+                  {serviceForm.id ? "Modifier un service" : "Ajouter un service"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                onClick={() => {
+                  setIsServiceModalOpen(false);
+                  resetServiceForm();
+                }}
+              >
+                Fermer
+              </button>
+            </div>
+
+            <form className="px-8 py-6 space-y-4" onSubmit={handleServiceSubmit}>
+              <Input
+                placeholder="Nom du service"
+                value={serviceForm.name}
+                onChange={(event) =>
+                  setServiceForm({ ...serviceForm, name: event.target.value })
+                }
+                required
+              />
+              <Textarea
+                placeholder="Description du service"
+                value={serviceForm.description}
+                onChange={(event) =>
+                  setServiceForm({
+                    ...serviceForm,
+                    description: event.target.value,
+                  })
+                }
+                required
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  placeholder="Catégorie *"
+                  value={serviceForm.category}
+                  onChange={(event) =>
+                    setServiceForm({
+                      ...serviceForm,
+                      category: event.target.value,
+                    })
+                  }
+                  required
+                />
+                <Input
+                  placeholder="Public cible *"
+                  value={serviceForm.forAudience}
+                  onChange={(event) =>
+                    setServiceForm({
+                      ...serviceForm,
+                      forAudience: event.target.value,
+                    })
+                  }
+                  required
+                />
+              </div>
+              <Input
+                placeholder="Slug (optionnel)"
+                value={serviceForm.slug}
+                onChange={(event) =>
+                  setServiceForm({ ...serviceForm, slug: event.target.value })
+                }
+              />
+              {serviceMessage && (
+                <div
+                  className={`rounded-2xl px-4 py-3 text-sm ${
+                    createServiceState.error || updateServiceState.error
+                      ? "bg-rose-50 text-rose-700"
+                      : "bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  {serviceMessage}
+                </div>
+              )}
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={() => {
+                    setIsServiceModalOpen(false);
+                    resetServiceForm();
+                  }}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  className="rounded-full"
+                  style={{ backgroundColor: "var(--gbh-magenta)" }}
+                  disabled={isServiceSubmitting}
+                >
+                  {isServiceSubmitting
+                    ? "Enregistrement..."
+                    : serviceForm.id
+                    ? "Mettre à jour"
+                    : "Ajouter le service"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {selectedAppointment && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
