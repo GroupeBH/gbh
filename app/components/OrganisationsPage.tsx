@@ -1,27 +1,11 @@
-﻿import { Button } from "./ui/button";
+import { Button } from "./ui/button";
 import { useMemo } from "react";
+import { ServicesShowcase } from "./ServicesShowcase";
 import { useGetServicesQuery, type Service } from "../store/api";
 
 interface OrganisationsPageProps {
   onNavigate: (page: string) => void;
 }
-
-const iconForService = (service: Service) => {
-  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
-  if (key.includes("conseil")) return "💼";
-  if (key.includes("intelligence")) return "🧠";
-  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
-    return "💻";
-  }
-  if (key.includes("recrutement")) return "👥";
-  if (key.includes("formation")) return "🎓";
-  if (key.includes("fourniture")) return "📦";
-  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
-  if (key.includes("fiscal")) return "🧾";
-  if (key.includes("voyage")) return "✈️";
-  if (key.includes("commission") || key.includes("vente")) return "🤝";
-  return "✨";
-};
 
 const isForOrganizations = (service: Service) => {
   const audience = (service.forAudience || "").toLowerCase();
@@ -41,16 +25,10 @@ const isForOrganizations = (service: Service) => {
 export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
   const { data, isLoading, isError } = useGetServicesQuery();
 
-  const services = useMemo(() => {
-    return (data?.services ?? [])
-      .filter(isForOrganizations)
-      .map((service, index) => ({
-        id: service.id || service._id || service.slug || String(index),
-        icon: iconForService(service),
-        title: service.name,
-        description: service.description || "Description à venir.",
-      }));
-  }, [data]);
+  const services = useMemo(
+    () => (data?.services ?? []).filter(isForOrganizations),
+    [data],
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
@@ -100,27 +78,9 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
           </div>
         )}
 
-        {services.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {services.map((service) => (
-              <div
-                key={service.id}
-                className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
-              >
-                <div
-                  className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
-                  style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                >
-                  {service.icon}
-                </div>
-                <h3 className="mb-4 text-[var(--gbh-black-soft)]">
-                  {service.title}
-                </h3>
-                <p className="text-[var(--gbh-gray-text)] leading-relaxed">
-                  {service.description}
-                </p>
-              </div>
-            ))}
+        {!isLoading && !isError && services.length > 0 && (
+          <div className="mb-16">
+            <ServicesShowcase services={services} onNavigate={onNavigate} />
           </div>
         )}
 
@@ -193,5 +153,3 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
     </div>
   );
 }
-
-

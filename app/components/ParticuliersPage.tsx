@@ -1,37 +1,11 @@
-﻿import { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
+import { ServicesShowcase } from "./ServicesShowcase";
 import { useGetServicesQuery, type Service } from "../store/api";
 
 interface ParticuliersPageProps {
   onNavigate: (page: string) => void;
 }
-
-type Domaine = {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  keywords: string[];
-};
-
-const iconForService = (service: Service) => {
-  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
-  if (key.includes("conseil")) return "💼";
-  if (key.includes("intelligence")) return "🧠";
-  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
-    return "💻";
-  }
-  if (key.includes("recrutement")) return "👥";
-  if (key.includes("formation")) return "🎓";
-  if (key.includes("fourniture")) return "📦";
-  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
-  if (key.includes("fiscal")) return "🧾";
-  if (key.includes("voyage")) return "✈️";
-  if (key.includes("commission") || key.includes("vente")) return "🤝";
-  return "✨";
-};
 
 const isForIndividuals = (service: Service) => {
   const audience = (service.forAudience || "").toLowerCase();
@@ -44,36 +18,38 @@ const isForIndividuals = (service: Service) => {
   );
 };
 
+const serviceMatchesQuery = (service: Service, query: string) => {
+  const haystack = [
+    service.name,
+    service.shortDescription,
+    service.description,
+    service.category,
+    service.forAudience,
+    service.slug,
+    ...(service.benefits ?? []),
+  ]
+    .filter(Boolean)
+    .map((item) => String(item).toLowerCase());
+
+  return haystack.some((item) => item.includes(query));
+};
+
 export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { data, isLoading, isError } = useGetServicesQuery();
 
-  const domaines = useMemo(() => {
-    return (data?.services ?? [])
-      .filter(isForIndividuals)
-      .map((service, index) => ({
-        id: service.id || service._id || service.slug || String(index),
-        title: service.name,
-        description: service.description,
-        icon: iconForService(service),
-        keywords: [service.name, service.category, service.forAudience, service.description]
-          .filter(Boolean)
-          .map((item) => String(item).toLowerCase()),
-      }));
-  }, [data]);
+  const individualServices = useMemo(
+    () => (data?.services ?? []).filter(isForIndividuals),
+    [data],
+  );
 
-  const filteredDomaines = useMemo(() => {
-    const query = searchQuery.toLowerCase();
-    return domaines.filter((domaine) => {
-      return (
-        domaine.title.toLowerCase().includes(query) ||
-        domaine.description.toLowerCase().includes(query) ||
-        domaine.keywords.some((keyword) => keyword.includes(query))
-      );
-    });
-  }, [domaines, searchQuery]);
+  const filteredServices = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return individualServices;
+    return individualServices.filter((service) => serviceMatchesQuery(service, query));
+  }, [individualServices, searchQuery]);
 
-  const hasServiceData = Boolean(data?.services?.length);
+  const hasServiceData = Boolean(individualServices.length);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -137,51 +113,11 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
           </div>
         )}
 
-        {filteredDomaines.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDomaines.map((domaine) => (
-              <div
-                key={domaine.id}
-                className="group bg-white rounded-3xl p-8 hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[var(--gbh-magenta)] hover:-translate-y-1"
-              >
-                <div className="flex items-start gap-4 mb-4">
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-2xl group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                  >
-                    {domaine.icon}
-                  </div>
-                  <div className="flex-1">
-                    <Badge
-                      className="mb-2 rounded-full"
-                      style={{
-                        backgroundColor: "var(--gbh-magenta-light)",
-                        color: "var(--gbh-magenta)",
-                      }}
-                    >
-                      Consultation particulière
-                    </Badge>
-                  </div>
-                </div>
-                <h3 className="text-[var(--gbh-black-soft)] mb-3">
-                  {domaine.title}
-                </h3>
-                <p className="text-[var(--gbh-gray-text)] mb-6 leading-relaxed">
-                  {domaine.description}
-                </p>
-                <Button
-                  onClick={() => onNavigate("rdv")}
-                  className="w-full rounded-full shadow-md hover:shadow-lg transition-all"
-                  style={{ backgroundColor: "var(--gbh-magenta)" }}
-                >
-                  Consulter →
-                </Button>
-              </div>
-            ))}
-          </div>
+        {!isLoading && !isError && filteredServices.length > 0 && (
+          <ServicesShowcase services={filteredServices} onNavigate={onNavigate} />
         )}
 
-        {hasServiceData && filteredDomaines.length === 0 && (
+        {hasServiceData && filteredServices.length === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <p className="text-xl text-[var(--gbh-gray-text)]">

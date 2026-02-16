@@ -4,6 +4,17 @@ import { Textarea } from "./ui/textarea";
 import { useState } from "react";
 import { useCreateContactMutation } from "../store/api";
 
+const offices = [
+  {
+    name: "Bureau Socimat",
+    address: "Avenue A Adama, vers Socimat, Kinshasa, RDC",
+  },
+  {
+    name: "Bureau Sendwe",
+    address: "Boulevard Sendwe, immeuble ADI Construct, Kinshasa, RDC",
+  },
+];
+
 export function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -53,8 +64,9 @@ export function ContactPage() {
                 </div>
                 <div>
                   <h3 className="mb-1 text-[var(--gbh-black-soft)]">Adresse</h3>
+                  <p className="text-[var(--gbh-gray-text)]">Avenue A Adama, vers Socimat</p>
                   <p className="text-[var(--gbh-gray-text)]">
-                    Kinshasa, République Démocratique du Congo
+                    Boulevard Sendwe, immeuble ADI Construct
                   </p>
                 </div>
               </div>
@@ -91,7 +103,7 @@ export function ContactPage() {
               style={{ backgroundColor: "var(--gbh-magenta-light)" }}
             >
               <h3 className="mb-4" style={{ color: "var(--gbh-magenta-dark)" }}>
-                Heures d'ouverture
+                Heures d&apos;ouverture
               </h3>
               <div className="space-y-2 text-[var(--gbh-gray-text)]">
                 <div className="flex justify-between">
@@ -106,6 +118,22 @@ export function ContactPage() {
                   <span>Dimanche</span>
                   <span className="font-semibold">Fermé</span>
                 </div>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <h3 className="mb-4 text-[var(--gbh-black-soft)]">Nos bureaux</h3>
+              <div className="space-y-4">
+                {offices.map((office) => (
+                  <article
+                    key={office.name}
+                    className="rounded-2xl border bg-white p-5"
+                    style={{ borderColor: "var(--gbh-magenta-light)" }}
+                  >
+                    <h4 className="text-[var(--gbh-black-soft)]">{office.name}</h4>
+                    <p className="text-sm text-[var(--gbh-gray-text)]">{office.address}</p>
+                  </article>
+                ))}
               </div>
             </div>
           </div>

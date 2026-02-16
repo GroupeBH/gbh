@@ -10,6 +10,8 @@ import {
   useCreatePaymentIntentMutation,
   useGetAvailabilityQuery,
   useGetServicesQuery,
+  useLookupAppointmentMutation,
+  type Appointment,
   type Service,
 } from "../store/api";
 
@@ -72,6 +74,40 @@ const formatDateDisplay = (date: string) => {
   if (!date) return "—";
   const [year, month, day] = date.split("-");
   return `${day}/${month}/${year}`;
+};
+
+const appointmentStatusLabel = (status?: string) => {
+  const value = (status || "").toLowerCase();
+  if (value === "booked" || value === "reserved" || value === "created") return "Réservé";
+  if (value === "confirmed" || value === "confirmé") return "Confirmé";
+  if (value === "pending" || value === "en_attente" || value === "awaiting") return "En attente";
+  if (value === "canceled" || value === "cancelled" || value === "annulé") return "Annulé";
+  return status || "—";
+};
+
+const appointmentTypeLabel = (type?: string) =>
+  type === "presentiel" ? "Présentiel" : type === "online" ? "En ligne" : "—";
+
+const paymentMethodLabel = (paymentMethod?: string) =>
+  paymentMethod === "place"
+    ? "Sur place"
+    : paymentMethod === "online"
+    ? "En ligne"
+    : "—";
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (!error || typeof error !== "object") return fallback;
+
+  if ("data" in error) {
+    const data = (error as { data?: unknown }).data;
+    if (typeof data === "string" && data.trim()) return data;
+    if (data && typeof data === "object" && "error" in data) {
+      const apiError = (data as { error?: unknown }).error;
+      if (typeof apiError === "string" && apiError.trim()) return apiError;
+    }
+  }
+
+  return fallback;
 };
 
 const SLOT_MINUTES = 45;
@@ -154,6 +190,8 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
     useCreateAppointmentMutation();
   const [createPaymentIntent, { isLoading: isPaying }] =
     useCreatePaymentIntentMutation();
+  const [lookupAppointment, { isLoading: isLookupLoading }] =
+    useLookupAppointmentMutation();
   const isSubmitting = isBooking || isPaying;
 
   const [step, setStep] = useState(1);
@@ -170,6 +208,9 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   });
   const [bookingMessage, setBookingMessage] = useState<string | null>(null);
   const [paymentMessage, setPaymentMessage] = useState<string | null>(null);
+  const [lookupId, setLookupId] = useState("");
+  const [lookupMessage, setLookupMessage] = useState<string | null>(null);
+  const [lookupResult, setLookupResult] = useState<Appointment | null>(null);
   const [confirmation, setConfirmation] =
     useState<AppointmentConfirmation | null>(null);
   const actionRef = useRef<HTMLDivElement | null>(null);
@@ -192,6 +233,14 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
     () => services.find((item) => item.id === selectedServiceId) || services[0],
     [services, selectedServiceId],
   );
+
+  const serviceNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    services.forEach((service) => {
+      map.set(service.id, service.name);
+    });
+    return map;
+  }, [services]);
 
   const {
     data: availabilityData,
@@ -234,6 +283,28 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     setSelectedTime("");
+  };
+
+  const handleLookupSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLookupMessage(null);
+    setLookupResult(null);
+
+    const appointmentId = lookupId.trim();
+    if (!appointmentId) {
+      setLookupMessage("Veuillez renseigner un identifiant.");
+      return;
+    }
+
+    try {
+      const result = await lookupAppointment({ id: appointmentId }).unwrap();
+      setLookupResult(result);
+      setLookupMessage("Rendez-vous retrouvé.");
+    } catch (error) {
+      setLookupMessage(
+        getApiErrorMessage(error, "Aucun rendez-vous trouvé pour cet identifiant."),
+      );
+    }
   };
 
   const scrollToActions = () => {
@@ -391,6 +462,100 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           <p className="text-xl text-[var(--gbh-gray-text)]">
             Sélectionnez votre service, votre créneau et confirmez votre rendez-vous.
           </p>
+        </div>
+
+        <div className="mb-10 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+            <div>
+              <h2 className="text-2xl text-[var(--gbh-black-soft)]">
+                Retrouver un rendez-vous
+              </h2>
+              <p className="text-sm text-[var(--gbh-gray-text)]">
+                Entrez l'identifiant reçu par email après la réservation.
+              </p>
+            </div>
+            <form className="w-full lg:w-auto flex flex-col sm:flex-row gap-3" onSubmit={handleLookupSubmit}>
+              <Input
+                value={lookupId}
+                onChange={(event) => setLookupId(event.target.value)}
+                placeholder="Ex: 67c9a2f7d2f0f9b0c9..."
+                className="sm:min-w-[320px]"
+              />
+              <Button
+                type="submit"
+                className="rounded-full"
+                style={{ backgroundColor: "var(--gbh-magenta)" }}
+                disabled={isLookupLoading}
+              >
+                {isLookupLoading ? "Recherche..." : "Rechercher"}
+              </Button>
+            </form>
+          </div>
+
+          {lookupMessage && (
+            <div
+              className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
+                lookupResult ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+              }`}
+            >
+              {lookupMessage}
+            </div>
+          )}
+
+          {lookupResult && (
+            <div className="mt-4 rounded-2xl bg-[var(--gbh-gray-ui)]/70 p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Référence
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {lookupResult.id || lookupResult._id || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Service
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {lookupResult.serviceId
+                    ? serviceNameMap.get(lookupResult.serviceId) || lookupResult.serviceId
+                    : "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Date et heure
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {formatDateDisplay(lookupResult.date || "")} · {lookupResult.time || "—"}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Statut
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {appointmentStatusLabel(lookupResult.status)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Type
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {appointmentTypeLabel(lookupResult.type)}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                  Paiement
+                </div>
+                <div className="font-semibold text-[var(--gbh-black-soft)]">
+                  {paymentMethodLabel(lookupResult.paymentMethod)}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-6 md:grid-cols-5 mb-10">

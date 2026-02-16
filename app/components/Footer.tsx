@@ -1,4 +1,23 @@
-﻿export function Footer() {
+import Image from "next/image";
+
+interface FooterProps {
+  onNavigate: (page: string) => void;
+}
+
+const quickLinks = [
+  { label: "Accueil", value: "home" },
+  { label: "Particuliers", value: "particuliers" },
+  { label: "Organisations", value: "organisations" },
+  { label: "Domaines", value: "domaines" },
+];
+
+const infoLinks = [
+  { label: "Mentions legales", value: "mentions-legales" },
+  { label: "Politique de confidentialite", value: "politique-confidentialite" },
+  { label: "Conditions utilisation", value: "conditions-utilisation" },
+];
+
+export function Footer({ onNavigate }: FooterProps) {
   return (
     <footer
       className="mt-20"
@@ -12,9 +31,13 @@
           <div className="col-span-1">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg">
-                <span className="text-[var(--gbh-magenta)] text-xl font-bold">
-                  GBH
-                </span>
+                <Image
+                  src="/gbh.png"
+                  alt="Logo GBH"
+                  width={44}
+                  height={44}
+                  className="h-11 w-11 object-contain"
+                />
               </div>
               <div>
                 <div className="font-semibold text-lg">Groupe B-Holding</div>
@@ -28,11 +51,17 @@
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Coordonnées</h4>
+            <h4 className="font-semibold mb-4 text-lg">Coordonnees</h4>
             <div className="space-y-3 text-sm opacity-90">
               <p className="flex items-start gap-2">
                 <span>📍</span>
-                <span>Kinshasa, RDC</span>
+                <span>
+                  Avenue A Adama, vers Socimat
+                  <br />
+                  Boulevard Sendwe, immeuble ADI Construct
+                  <br />
+                  Kinshasa, RDC
+                </span>
               </p>
               <p className="flex items-start gap-2">
                 <span>📧</span>
@@ -48,33 +77,32 @@
           <div>
             <h4 className="font-semibold mb-4 text-lg">Liens rapides</h4>
             <div className="space-y-3 text-sm opacity-90">
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Accueil
-              </p>
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Particuliers
-              </p>
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Organisations
-              </p>
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Domaines
-              </p>
+              {quickLinks.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => onNavigate(item.value)}
+                  className="block hover:opacity-100 cursor-pointer transition-opacity text-left"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4 text-lg">Informations</h4>
             <div className="space-y-3 text-sm opacity-90">
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Mentions légales
-              </p>
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                Politique de confidentialité
-              </p>
-              <p className="hover:opacity-100 cursor-pointer transition-opacity">
-                CGU
-              </p>
+              {infoLinks.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => onNavigate(item.value)}
+                  className="block hover:opacity-100 cursor-pointer transition-opacity text-left"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -82,7 +110,7 @@
         <div className="border-t border-white/20 mt-12 pt-8 text-center text-sm text-white/80">
           <p>
             © {new Date().getFullYear()} Groupe B-Holding Sarl. Tous droits
-            réservés.
+            reserves.
           </p>
         </div>
       </div>
