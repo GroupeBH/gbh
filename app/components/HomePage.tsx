@@ -1,49 +1,103 @@
-﻿import { Button } from "./ui/button";
-import { useMemo } from "react";
-import { useGetServicesQuery, type Service } from "../store/api";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { ServicesShowcase } from "./ServicesShowcase";
+import { useMemo, useState } from "react";
+import { useGetServicesQuery, useLookupAppointmentMutation, type Appointment } from "../store/api";
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
 }
 
-const iconForService = (service: Service) => {
-  const key = `${service.slug || ""} ${service.name || ""}`.toLowerCase();
-  if (key.includes("conseil")) return "💼";
-  if (key.includes("intelligence")) return "🧠";
-  if (key.includes("numérique") || key.includes("numerique") || key.includes("digital")) {
-    return "💻";
+const formatDateDisplay = (date?: string) => {
+  if (!date) return "—";
+  const [year, month, day] = date.split("-");
+  if (!year || !month || !day) return date;
+  return `${day}/${month}/${year}`;
+};
+
+const appointmentStatusLabel = (status?: string) => {
+  const value = (status || "").toLowerCase();
+  if (value === "booked" || value === "reserved" || value === "created") return "Réservé";
+  if (value === "confirmed" || value === "confirmé") return "Confirmé";
+  if (value === "pending" || value === "en_attente" || value === "awaiting") return "En attente";
+  if (value === "canceled" || value === "cancelled" || value === "annulé") return "Annulé";
+  return status || "—";
+};
+
+const appointmentTypeLabel = (type?: string) =>
+  type === "presentiel" ? "Présentiel" : type === "online" ? "En ligne" : "—";
+
+const paymentMethodLabel = (paymentMethod?: string) =>
+  paymentMethod === "place"
+    ? "Sur place"
+    : paymentMethod === "online"
+    ? "En ligne"
+    : "—";
+
+const getApiErrorMessage = (error: unknown, fallback: string) => {
+  if (!error || typeof error !== "object") return fallback;
+
+  if ("data" in error) {
+    const data = (error as { data?: unknown }).data;
+    if (typeof data === "string" && data.trim()) return data;
+    if (data && typeof data === "object" && "error" in data) {
+      const apiError = (data as { error?: unknown }).error;
+      if (typeof apiError === "string" && apiError.trim()) return apiError;
+    }
   }
-  if (key.includes("recrutement")) return "👥";
-  if (key.includes("formation")) return "🎓";
-  if (key.includes("fourniture")) return "📦";
-  if (key.includes("entrepreneuriat") || key.includes("entreprise")) return "🚀";
-  if (key.includes("fiscal")) return "🧾";
-  if (key.includes("voyage")) return "✈️";
-  if (key.includes("commission") || key.includes("vente")) return "🤝";
-  return "✨";
+
+  return fallback;
 };
 
 export function HomePage({ onNavigate }: HomePageProps) {
   const { data, isLoading, isError } = useGetServicesQuery();
+  const [lookupAppointment, { isLoading: isLookupLoading }] = useLookupAppointmentMutation();
+  const [lookupId, setLookupId] = useState("");
+  const [lookupMessage, setLookupMessage] = useState<string | null>(null);
+  const [lookupResult, setLookupResult] = useState<Appointment | null>(null);
 
-  const domaines = useMemo(() => {
-    return (data?.services ?? []).map((service, index) => ({
-      id: service.id || service._id || service.slug || String(index),
-      title: service.name,
-      description: service.description || "Description à venir.",
-      icon: iconForService(service),
-    }));
-  }, [data]);
+  const services = data?.services ?? [];
 
   const heroLine = useMemo(() => {
-    const labels = (data?.services ?? [])
+    const labels = services
       .map((service) => service.category || service.name)
       .filter(Boolean)
       .map((label) => String(label).trim())
       .filter(Boolean);
     const unique = Array.from(new Set(labels));
     return unique.slice(0, 4).join(" • ");
-  }, [data]);
+  }, [services]);
+
+  const serviceNameMap = useMemo(() => {
+    const map = new Map<string, string>();
+    services.forEach((service, index) => {
+      const id = service.id || service._id || service.slug || String(index);
+      if (id) map.set(id, service.name);
+    });
+    return map;
+  }, [services]);
+
+  const handleLookupSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setLookupMessage(null);
+    setLookupResult(null);
+
+    const appointmentId = lookupId.trim();
+    if (!appointmentId) {
+      setLookupMessage("Veuillez renseigner un identifiant.");
+      return;
+    }
+
+    try {
+      const result = await lookupAppointment({ id: appointmentId }).unwrap();
+      setLookupResult(result);
+      setLookupMessage("Rendez-vous retrouvé.");
+    } catch (error) {
+      setLookupMessage(
+        getApiErrorMessage(error, "Aucun rendez-vous trouvé pour cet identifiant."),
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -169,6 +223,107 @@ export function HomePage({ onNavigate }: HomePageProps) {
         </div>
       </section>
 
+      <section className="py-10 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/50 p-6 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl text-[var(--gbh-black-soft)]">
+                  Voir le détail d'une réservation
+                </h2>
+                <p className="text-sm text-[var(--gbh-gray-text)]">
+                  Entrez l'identifiant reçu par email après la réservation.
+                </p>
+              </div>
+              <form
+                className="w-full lg:w-auto flex flex-col sm:flex-row gap-3"
+                onSubmit={handleLookupSubmit}
+              >
+                <Input
+                  value={lookupId}
+                  onChange={(event) => setLookupId(event.target.value)}
+                  placeholder="Ex: 67c9a2f7d2f0f9b0c9..."
+                  className="sm:min-w-[320px] bg-white"
+                />
+                <Button
+                  type="submit"
+                  className="rounded-full"
+                  style={{ backgroundColor: "var(--gbh-magenta)" }}
+                  disabled={isLookupLoading}
+                >
+                  {isLookupLoading ? "Recherche..." : "Rechercher"}
+                </Button>
+              </form>
+            </div>
+
+            {lookupMessage && (
+              <div
+                className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
+                  lookupResult ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                }`}
+              >
+                {lookupMessage}
+              </div>
+            )}
+
+            {lookupResult && (
+              <div className="mt-4 rounded-2xl bg-white p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Référence
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {lookupResult.id || lookupResult._id || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Service
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {lookupResult.serviceId
+                      ? serviceNameMap.get(lookupResult.serviceId) || lookupResult.serviceId
+                      : "—"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Date et heure
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {formatDateDisplay(lookupResult.date)} · {lookupResult.time || "—"}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Statut
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {appointmentStatusLabel(lookupResult.status)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Type
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {appointmentTypeLabel(lookupResult.type)}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
+                    Paiement
+                  </div>
+                  <div className="font-semibold text-[var(--gbh-black-soft)]">
+                    {paymentMethodLabel(lookupResult.paymentMethod)}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section className="py-20 md:py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -190,34 +345,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
               Impossible de charger les domaines. Vérifiez que l'API est en ligne.
             </div>
           )}
-          {!isLoading && !isError && domaines.length === 0 && (
+          {!isLoading && !isError && services.length === 0 && (
             <div className="text-center text-[var(--gbh-gray-text)] mb-8">
               Aucun domaine disponible pour le moment.
             </div>
           )}
 
-          {domaines.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {domaines.map((service) => (
-                <div
-                  key={service.id}
-                  className="group bg-gradient-to-br from-white to-gray-50 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-[var(--gbh-magenta)]"
-                >
-                  <div
-                    className="w-16 h-16 rounded-2xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: "var(--gbh-magenta-light)" }}
-                  >
-                    {service.icon}
-                  </div>
-                  <h3 className="mb-3 text-[var(--gbh-black-soft)]">
-                    {service.title}
-                  </h3>
-                  <p className="text-[var(--gbh-gray-text)] leading-relaxed">
-                    {service.description}
-                  </p>
-                </div>
-              ))}
-            </div>
+          {!isLoading && !isError && services.length > 0 && (
+            <ServicesShowcase services={services} onNavigate={onNavigate} />
           )}
         </div>
       </section>
@@ -254,4 +389,3 @@ export function HomePage({ onNavigate }: HomePageProps) {
     </div>
   );
 }
-

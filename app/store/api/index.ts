@@ -10,6 +10,8 @@ export { adminAuthApi } from "./adminAuthApi";
 
 export {
   useGetServicesQuery,
+  useGetServiceTestimonialsQuery,
+  useCreateServiceTestimonialMutation,
   useAdminCreateServiceMutation,
   useAdminUpdateServiceMutation,
   useAdminDeleteServiceMutation,
@@ -20,6 +22,7 @@ export { useGetAvailabilityQuery } from "./availabilityApi";
 export {
   useCreateAppointmentMutation,
   useGetAppointmentQuery,
+  useLookupAppointmentMutation,
   useAdminListAppointmentsQuery,
   useAdminUpdateAppointmentStatusMutation,
 } from "./appointmentsApi";

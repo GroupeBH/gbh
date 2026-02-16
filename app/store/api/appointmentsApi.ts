@@ -29,6 +29,36 @@ export const appointmentsApi = createApi({
     getAppointment: builder.query<Appointment, string>({
       query: (id) => `appointments/${id}`,
     }),
+    lookupAppointment: builder.mutation<Appointment, { id: string }>({
+      queryFn: async (body, _api, _extraOptions, fetchWithBQ) => {
+        const lookupResult = await fetchWithBQ({
+          url: "appointments/lookup",
+          method: "POST",
+          body,
+        });
+
+        if (!lookupResult.error) {
+          return { data: lookupResult.data as Appointment };
+        }
+
+        const status =
+          typeof lookupResult.error.status === "number"
+            ? lookupResult.error.status
+            : null;
+
+        if (status === 404 || status === 405) {
+          const fallbackResult = await fetchWithBQ(
+            `appointments/${encodeURIComponent(body.id)}`,
+          );
+          if (!fallbackResult.error) {
+            return { data: fallbackResult.data as Appointment };
+          }
+          return { error: fallbackResult.error };
+        }
+
+        return { error: lookupResult.error };
+      },
+    }),
     adminListAppointments: builder.query<
       AppointmentsResponse,
       { date?: string } | void
@@ -56,6 +86,7 @@ export const appointmentsApi = createApi({
 export const {
   useCreateAppointmentMutation,
   useGetAppointmentQuery,
+  useLookupAppointmentMutation,
   useAdminListAppointmentsQuery,
   useAdminUpdateAppointmentStatusMutation,
 } = appointmentsApi;

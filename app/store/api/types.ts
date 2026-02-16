@@ -1,11 +1,14 @@
-﻿export type Service = {
+export type Service = {
   id?: string;
   _id?: string;
   name: string;
+  shortDescription?: string;
   description: string;
+  benefits?: string[];
   category?: string;
   forAudience?: string;
   slug?: string;
+  createdAt?: string;
 };
 
 export type Appointment = {
@@ -24,6 +27,7 @@ export type Appointment = {
   total?: number;
   status?: string;
   paymentMethod?: string;
+  createdAt?: string;
 };
 
 export type ContactMessage = {
@@ -58,6 +62,20 @@ export type ServicesResponse = {
 
 export type AppointmentsResponse = {
   appointments: Appointment[];
+};
+
+export type ServiceTestimonial = {
+  id?: string;
+  _id?: string;
+  serviceId: string;
+  name: string;
+  rating: number;
+  message: string;
+  createdAt?: string;
+};
+
+export type ServiceTestimonialsResponse = {
+  testimonials: ServiceTestimonial[];
 };
 
 export type ContactsResponse = {

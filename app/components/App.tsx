@@ -11,6 +11,9 @@ import { RdvPage } from "./RdvPage";
 import { ContactPage } from "./ContactPage";
 import { AdminPage } from "./AdminPage";
 import { AdminRegisterPage } from "./AdminRegisterPage";
+import { LegalNoticePage } from "./LegalNoticePage";
+import { PrivacyPolicyPage } from "./PrivacyPolicyPage";
+import { TermsPage } from "./TermsPage";
 
 type Page =
   | "home"
@@ -20,7 +23,10 @@ type Page =
   | "rdv"
   | "contact"
   | "admin"
-  | "register";
+  | "register"
+  | "mentions-legales"
+  | "politique-confidentialite"
+  | "conditions-utilisation";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -43,6 +49,9 @@ export default function App() {
       "contact",
       "admin",
       "register",
+      "mentions-legales",
+      "politique-confidentialite",
+      "conditions-utilisation",
     ];
 
     const readHash = () => {
@@ -75,6 +84,12 @@ export default function App() {
         return <AdminPage onNavigate={handleNavigate} />;
       case "register":
         return <AdminRegisterPage onNavigate={handleNavigate} />;
+      case "mentions-legales":
+        return <LegalNoticePage onNavigate={handleNavigate} />;
+      case "politique-confidentialite":
+        return <PrivacyPolicyPage onNavigate={handleNavigate} />;
+      case "conditions-utilisation":
+        return <TermsPage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }
@@ -84,7 +99,7 @@ export default function App() {
     <div className="min-h-screen bg-white">
       <Header currentPage={currentPage} onNavigate={handleNavigate} />
       <main>{renderPage()}</main>
-      <Footer />
+      <Footer onNavigate={handleNavigate} />
     </div>
   );
 }
