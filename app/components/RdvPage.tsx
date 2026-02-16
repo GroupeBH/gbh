@@ -158,8 +158,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
 
   const [step, setStep] = useState(1);
   const [selectedServiceId, setSelectedServiceId] = useState<string>("");
-  const [appointmentType, setAppointmentType] =
-    useState<"online" | "presentiel">("online");
+  const appointmentType: "presentiel" = "presentiel";
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"online" | "place">("place");
@@ -536,51 +535,19 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           {step === 2 && (
             <div>
               <h2 className="text-[var(--gbh-black-soft)] mb-2">
-                Choisissez le type de consultation
+                Rendez-vous au bureau
               </h2>
               <p className="text-[var(--gbh-gray-text)] mb-8">
-                Sélectionnez le mode de rendez-vous le plus confortable pour vous.
+                Les consultations se font uniquement en présentiel dans nos bureaux à Kinshasa.
               </p>
-
-              <RadioGroup
-                value={appointmentType}
-                onValueChange={(value) =>
-                  setAppointmentType(value as "online" | "presentiel")
-                }
-                className="grid gap-4"
-              >
-                {[
-                  {
-                    value: "online",
-                    title: "En ligne",
-                    description: "Visioconférence depuis votre téléphone ou PC",
-                  },
-                  {
-                    value: "presentiel",
-                    title: "Présentiel",
-                    description: "Rendez-vous dans nos bureaux à Kinshasa",
-                  },
-                ].map((option) => (
-                  <label
-                    key={option.value}
-                    className={`flex items-start gap-4 rounded-3xl border-2 p-6 cursor-pointer transition-all ${
-                      appointmentType === option.value
-                        ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/40"
-                        : "border-transparent bg-[var(--gbh-gray-ui)]/60"
-                    }`}
-                  >
-                    <RadioGroupItem value={option.value} />
-                    <div>
-                      <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
-                        {option.title}
-                      </div>
-                      <div className="text-sm text-[var(--gbh-gray-text)]">
-                        {option.description}
-                      </div>
-                    </div>
-                  </label>
-                ))}
-              </RadioGroup>
+              <div className="rounded-3xl border border-[var(--gbh-magenta-light)] bg-[var(--gbh-magenta-light)]/30 p-6">
+                <div className="text-lg font-semibold text-[var(--gbh-black-soft)]">
+                  Type confirmé: Présentiel
+                </div>
+                <div className="text-sm text-[var(--gbh-gray-text)] mt-2">
+                  Vous serez reçu au bureau pour ce rendez-vous.
+                </div>
+              </div>
             </div>
           )}
 
@@ -842,7 +809,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                     <div>
                       <div className="text-xs uppercase">Type</div>
                       <div className="font-semibold text-[var(--gbh-black-soft)]">
-                        {appointmentType === "online" ? "En ligne" : "Présentiel"}
+                        Présentiel (au bureau)
                       </div>
                     </div>
                     <div>
