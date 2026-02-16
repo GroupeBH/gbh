@@ -14,6 +14,7 @@ export const adminAuthApi = createApi({
         url: "admin/register",
         method: "POST",
         body,
+        responseHandler: "content-type",
       }),
     }),
     adminLogin: builder.mutation<
@@ -24,18 +25,21 @@ export const adminAuthApi = createApi({
         url: "admin/login",
         method: "POST",
         body,
+        responseHandler: "content-type",
       }),
     }),
     adminRefresh: builder.mutation<{ status: string }, void>({
       query: () => ({
         url: "admin/refresh",
         method: "POST",
+        responseHandler: "content-type",
       }),
     }),
     adminLogout: builder.mutation<{ status: string }, void>({
       query: () => ({
         url: "admin/logout",
         method: "POST",
+        responseHandler: "content-type",
       }),
     }),
   }),

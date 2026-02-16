@@ -14,14 +14,30 @@ const rawBaseQuery = fetchBaseQuery({
   credentials: "include",
 });
 
-const isUnauthorized = (error?: FetchBaseQueryError) =>
-  typeof error?.status === "number" && error.status === 401;
+const getErrorStatusCode = (error?: FetchBaseQueryError) => {
+  if (!error) return null;
+
+  if (typeof error.status === "number") {
+    return error.status;
+  }
+
+  if ("originalStatus" in error && typeof error.originalStatus === "number") {
+    return error.originalStatus;
+  }
+
+  return null;
+};
+
+const isAuthError = (error?: FetchBaseQueryError) => {
+  const statusCode = getErrorStatusCode(error);
+  return statusCode === 401 || statusCode === 403;
+};
 
 const getRequestUrl = (args: string | FetchArgs) =>
   typeof args === "string" ? args : args.url;
 
 const shouldTryRefresh = (args: string | FetchArgs) => {
-  const url = getRequestUrl(args);
+  const url = getRequestUrl(args).replace(/^\/+/, "");
 
   if (!url.startsWith("admin/")) return false;
 
@@ -42,12 +58,17 @@ const runRefresh = async (
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       const refreshResult = await rawBaseQuery(
-        { url: "admin/refresh", method: "POST" },
+        { url: "admin/refresh", method: "POST", responseHandler: "content-type" },
         api,
         extraOptions,
       );
 
-      return Boolean(refreshResult.data);
+      if (!refreshResult.error) {
+        return true;
+      }
+
+      const statusCode = getErrorStatusCode(refreshResult.error);
+      return statusCode !== null && statusCode >= 200 && statusCode < 300;
     })().finally(() => {
       refreshInFlight = null;
     });
@@ -63,7 +84,7 @@ export const baseQuery: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   let result = await rawBaseQuery(args, api, extraOptions);
 
-  if (isUnauthorized(result.error) && shouldTryRefresh(args)) {
+  if (isAuthError(result.error) && shouldTryRefresh(args)) {
     const refreshed = await runRefresh(api, extraOptions);
 
     if (refreshed) {
