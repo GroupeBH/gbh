@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -10,7 +10,6 @@ import {
   useAdminListContactsQuery,
   useAdminLoginMutation,
   useAdminLogoutMutation,
-  useAdminRefreshMutation,
   useAdminUpdateServiceMutation,
   useGetServicesQuery,
   type Appointment,
@@ -106,7 +105,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
   const [login, loginState] = useAdminLoginMutation();
-  const [refresh] = useAdminRefreshMutation();
   const [logout] = useAdminLogoutMutation();
   const [createService, createServiceState] = useAdminCreateServiceMutation();
   const [updateService, updateServiceState] = useAdminUpdateServiceMutation();
@@ -131,12 +129,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     resetServiceForm();
     setIsServiceModalOpen(true);
   };
-
-  useEffect(() => {
-    refresh()
-      .unwrap()
-      .catch(() => undefined);
-  }, [refresh]);
 
   const serviceMap = useMemo(() => {
     const map = new Map<string, string>();
