@@ -10,6 +10,7 @@ import { DomainesPage } from "./DomainesPage";
 import { RdvPage } from "./RdvPage";
 import { ContactPage } from "./ContactPage";
 import { AdminPage } from "./AdminPage";
+import { AdminRegisterPage } from "./AdminRegisterPage";
 
 type Page =
   | "home"
@@ -18,7 +19,8 @@ type Page =
   | "domaines"
   | "rdv"
   | "contact"
-  | "admin";
+  | "admin"
+  | "register";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>("home");
@@ -40,6 +42,7 @@ export default function App() {
       "rdv",
       "contact",
       "admin",
+      "register",
     ];
 
     const readHash = () => {
@@ -70,6 +73,8 @@ export default function App() {
         return <ContactPage />;
       case "admin":
         return <AdminPage onNavigate={handleNavigate} />;
+      case "register":
+        return <AdminRegisterPage onNavigate={handleNavigate} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

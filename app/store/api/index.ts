@@ -31,6 +31,7 @@ export { useCreatePaymentIntentMutation } from "./paymentsApi";
 export { useAdminCreateBlockMutation, useAdminDeleteBlockMutation } from "./blocksApi";
 
 export {
+  useAdminRegisterMutation,
   useAdminLoginMutation,
   useAdminRefreshMutation,
   useAdminLogoutMutation,

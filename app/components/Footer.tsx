@@ -40,7 +40,7 @@
               </p>
               <p className="flex items-start gap-2">
                 <span>📞</span>
-                <span>+243 XXX XXX XXX</span>
+                <span>+243 999 403 012</span>
               </p>
             </div>
           </div>
