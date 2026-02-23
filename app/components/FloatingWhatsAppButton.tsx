@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 type FloatingWhatsAppButtonProps = {
   context?: string;
 };
@@ -25,8 +27,14 @@ export function FloatingWhatsAppButton({ context = "home" }: FloatingWhatsAppBut
       className="fixed left-4 bottom-4 z-[60] inline-flex items-center gap-2 rounded-full border border-cyan-100/80 bg-[linear-gradient(135deg,#93ffe9,#ddfff8,#f2e2ff)] px-4 py-3 text-sm font-semibold text-[var(--gbh-violet-900)] shadow-[0_16px_30px_rgba(59,201,180,0.35)] transition-all hover:-translate-y-1 hover:brightness-105"
       aria-label="Contacter GBH sur WhatsApp"
     >
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-purple-100/70 text-[10px] tracking-wide">
-        WA
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-white/85">
+        <Image
+          src="/whatsapp.png"
+          alt="WhatsApp"
+          width={16}
+          height={16}
+          className="h-4 w-4 object-contain"
+        />
       </span>
       WhatsApp
     </a>
