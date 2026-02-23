@@ -13,7 +13,6 @@ type LoadState = "loading" | "ready";
 export function ReferencesPreview() {
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
-  const [fallbackMessage, setFallbackMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -22,11 +21,6 @@ export function ReferencesPreview() {
       if (!mounted) return;
 
       setReferences(result.references);
-      if (result.fromFallback) {
-        setFallbackMessage(result.apiError || "Mode fallback actif.");
-      } else {
-        setFallbackMessage(null);
-      }
       setLoadState("ready");
     };
 
@@ -55,12 +49,6 @@ export function ReferencesPreview() {
             </Button>
           </Link>
         </div>
-
-        {fallbackMessage && (
-          <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-            {fallbackMessage}
-          </div>
-        )}
 
         {loadState === "loading" && (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
