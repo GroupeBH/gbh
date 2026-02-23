@@ -31,7 +31,7 @@ export function RouteShell({
   hideStickyCta = false,
 }: RouteShellProps) {
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f2ff,#f8fbff)]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f2ff,#ecfffa,#f2e9ff)]">
       <Header currentPage={currentPage} onNavigate={navigateToHashPage} />
       <main>{children}</main>
       <Footer onNavigate={navigateToHashPage} />
@@ -40,3 +40,4 @@ export function RouteShell({
     </div>
   );
 }
+

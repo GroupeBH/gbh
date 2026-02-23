@@ -71,7 +71,7 @@ export function BookingLookup() {
   };
 
   return (
-    <section className="py-16 bg-[linear-gradient(180deg,#f9f6ff,#f5f9ff)]">
+    <section className="py-16 bg-[linear-gradient(180deg,#f9f6ff,#ebfffa,#f5f9ff)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-purple-200 bg-white/80 p-6 md:p-8 shadow-[0_20px_36px_rgba(61,24,153,0.12)] backdrop-blur">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -100,7 +100,7 @@ export function BookingLookup() {
           {lookupMessage && (
             <div
               className={`mt-4 rounded-2xl px-4 py-3 text-sm ${
-                lookupResult ? "bg-purple-100 text-purple-800" : "bg-rose-50 text-rose-700"
+                lookupResult ? "bg-[var(--gbh-mint-soft)] text-teal-800" : "bg-rose-50 text-rose-700"
               }`}
             >
               {lookupMessage}

@@ -54,7 +54,7 @@ export default function CaseStudyDetailPage() {
 
   return (
     <RouteShell currentPage="etudes-de-cas" whatsappContext="case-study">
-      <section className="border-b border-purple-200/60 bg-[radial-gradient(circle_at_top_left,#e0d4ff_0%,#f6fbff_45%,#ffffff_100%)]">
+      <section className="border-b border-purple-200/60 bg-[radial-gradient(circle_at_20%_30%,#d8fff6_0%,transparent_30%),radial-gradient(circle_at_top_left,#e0d4ff_0%,#f3ebff_45%,#ffffff_100%)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-18 md:py-22">
           <p className="inline-flex rounded-full border border-purple-300 bg-white/80 px-4 py-2 text-xs uppercase tracking-[0.2em] text-purple-700">
             Etude de cas
@@ -65,7 +65,7 @@ export default function CaseStudyDetailPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16 bg-[linear-gradient(180deg,#f7f3ff,#f8fbff)]">
+      <section className="py-12 md:py-16 bg-[linear-gradient(180deg,#f7f3ff,#ecfffa,#f2e9ff)]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {loadState === "loading" && (
             <div className="space-y-5">
@@ -75,8 +75,8 @@ export default function CaseStudyDetailPage() {
                   className="rounded-2xl border border-purple-200 bg-white/80 p-6 animate-pulse"
                 >
                   <div className="h-5 w-36 rounded bg-purple-200" />
-                  <div className="mt-4 h-4 w-full rounded bg-purple-100" />
-                  <div className="mt-2 h-4 w-5/6 rounded bg-purple-100" />
+                  <div className="mt-4 h-4 w-full rounded bg-[var(--gbh-mint-soft)]" />
+                  <div className="mt-2 h-4 w-5/6 rounded bg-[var(--gbh-mint-soft)]" />
                 </div>
               ))}
             </div>
@@ -95,7 +95,7 @@ export default function CaseStudyDetailPage() {
                 </Link>
                 <Link href="/organisations">
                   <Button className="rounded-full">
-                    Demander une proposition
+                    Lancer une consultation B2B
                   </Button>
                 </Link>
               </div>
@@ -124,7 +124,7 @@ export default function CaseStudyDetailPage() {
                 <p className="mt-3 text-purple-700">{caseStudy.result}</p>
               </article>
 
-              <div className="rounded-3xl border border-purple-300/30 bg-[linear-gradient(135deg,rgba(123,51,255,0.2),rgba(102,220,255,0.2))] p-6 md:p-8">
+              <div className="rounded-3xl border border-purple-300/30 bg-[linear-gradient(135deg,rgba(123,51,255,0.22),rgba(200,104,255,0.2),rgba(97,236,214,0.22))] p-6 md:p-8">
                 <h3 className="text-2xl text-purple-900">Vous avez un besoin similaire ?</h3>
                 <p className="mt-3 text-purple-800">
                   Partagez votre contexte et recevez une proposition intervention B2B.
@@ -132,13 +132,13 @@ export default function CaseStudyDetailPage() {
                 <div className="mt-6 flex gap-3">
                   <Link href="/organisations">
                     <Button className="rounded-full">
-                      Demander une proposition
+                      Lancer une consultation B2B
                     </Button>
                   </Link>
                   <Link href="/references">
                     <Button
                       variant="outline"
-                      className="rounded-full border-purple-400 text-purple-900 bg-white/70 hover:bg-white"
+                      className="rounded-full border-purple-400 bg-white/70 text-purple-900 hover:border-[var(--gbh-mint-deep)] hover:bg-[var(--gbh-mint-soft)]"
                     >
                       Voir les references
                     </Button>

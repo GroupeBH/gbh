@@ -52,6 +52,7 @@ export type ReferenceItem = {
   value?: string;
   year?: string;
   location?: string;
+  logoUrl?: string;
 };
 
 export type ReferencesFetchResult = {

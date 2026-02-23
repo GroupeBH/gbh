@@ -78,10 +78,10 @@ const rfpStatusLabels: Record<B2BRfpStatus, string> = {
 };
 
 const rfpStatusClasses: Record<B2BRfpStatus, string> = {
-  new: "bg-slate-100 text-slate-700",
+  new: "bg-[var(--gbh-mint-soft)] text-teal-700",
   reviewing: "bg-amber-100 text-amber-700",
   qualified: "bg-emerald-100 text-emerald-700",
-  won: "bg-indigo-100 text-indigo-700",
+  won: "bg-violet-100 text-violet-700",
   lost: "bg-rose-100 text-rose-700",
 };
 
@@ -449,7 +449,7 @@ export function AdminB2BPanel() {
                 className={`rounded-2xl border px-4 py-3 text-sm font-semibold transition-all ${
                   isActive
                     ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)] text-[var(--gbh-magenta-dark)] shadow-[0_8px_18px_rgba(88,39,165,0.2)]"
-                    : "border-gray-200 bg-white text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)]"
+                    : "border-purple-200 bg-[linear-gradient(140deg,#ffffff,#f8edff,#e8fffa)] text-[var(--gbh-gray-text)] hover:border-[var(--gbh-mint-deep)]"
                 }`}
               >
                 {tab.label}
@@ -490,8 +490,8 @@ export function AdminB2BPanel() {
                         onClick={() => setRfpFilter(status)}
                         className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all ${
                           isActive
-                            ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta)] text-white"
-                            : "border-gray-200 bg-white text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)]"
+                            ? "border-purple-400 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
+                            : "border-purple-200 bg-[linear-gradient(140deg,#ffffff,#f8edff,#e8fffa)] text-[var(--gbh-gray-text)] hover:border-[var(--gbh-mint-deep)]"
                         }`}
                       >
                         {toRfpFilterLabel(status)}
@@ -646,7 +646,7 @@ export function AdminB2BPanel() {
                           className={
                             reference.is_public
                               ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-100 text-slate-700"
+                              : "bg-[var(--gbh-mint-soft)] text-teal-700"
                           }
                         >
                           {reference.is_public ? "Public" : "Prive"}
@@ -744,7 +744,7 @@ export function AdminB2BPanel() {
                           className={
                             caseStudy.is_published
                               ? "bg-emerald-100 text-emerald-700"
-                              : "bg-slate-100 text-slate-700"
+                              : "bg-[var(--gbh-mint-soft)] text-teal-700"
                           }
                         >
                           {caseStudy.is_published ? "Publiee" : "Brouillon"}
@@ -865,7 +865,7 @@ export function AdminB2BPanel() {
             className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="border-b border-gray-100 px-6 py-5">
+            <div className="border-b border-purple-100/80 px-6 py-5">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
                 References B2B
               </p>
@@ -984,7 +984,7 @@ export function AdminB2BPanel() {
             className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="border-b border-gray-100 px-6 py-5">
+            <div className="border-b border-purple-100/80 px-6 py-5">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
                 Etudes de cas
               </p>

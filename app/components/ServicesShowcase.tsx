@@ -210,7 +210,7 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
         {domaines.map((domaine) => (
           <div
             key={domaine.id}
-            className="bg-white border-2 border-gray-200 rounded-2xl p-8 hover:shadow-2xl transition-all hover:border-[var(--gbh-magenta)] group"
+            className="rounded-2xl border-2 border-purple-200 bg-[linear-gradient(145deg,#ffffff,#f7edff,#e9fffa)] p-8 transition-all group hover:border-[var(--gbh-mint-deep)] hover:shadow-2xl"
           >
             <div
               className="w-16 h-16 rounded-xl mb-6 flex items-center justify-center text-3xl group-hover:scale-110 transition-transform"
@@ -277,7 +277,7 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
             className="w-full max-w-5xl max-h-[92vh] overflow-y-auto rounded-3xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="px-8 py-6 border-b border-purple-100/80 flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
                   Détail domaine
@@ -288,7 +288,7 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
               </div>
               <button
                 type="button"
-                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                className="rounded-full border border-purple-200 bg-white/90 px-3 py-1 text-sm text-[var(--gbh-gray-text)] transition-colors hover:border-[var(--gbh-mint-deep)] hover:text-[var(--gbh-violet-800)]"
                 onClick={() => setSelectedDomaine(null)}
               >
                 Fermer
@@ -340,15 +340,15 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
                     setSelectedDomaine(null);
                     onNavigate("rdv");
                   }}
+                  variant="secondary"
                   className="rounded-full"
-                  style={{ backgroundColor: "var(--gbh-magenta)" }}
                 >
                   Prendre rendez-vous pour ce service
                 </Button>
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-2xl border border-gray-100 p-5">
+                <div className="rounded-2xl border border-purple-100/80 bg-[linear-gradient(145deg,#ffffff,#f8f0ff,#edfffa)] p-5">
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-lg text-[var(--gbh-black-soft)]">
                       Témoignages
@@ -413,7 +413,7 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
 
                 {!isTestimonialsEndpointDisabled && (
                   <form
-                    className="rounded-2xl border border-gray-100 p-5 space-y-4"
+                    className="rounded-2xl border border-purple-100/80 bg-[linear-gradient(145deg,#ffffff,#f8f0ff,#edfffa)] p-5 space-y-4"
                     onSubmit={handleSubmitTestimonial}
                   >
                     <h4 className="text-lg text-[var(--gbh-black-soft)]">
@@ -437,7 +437,7 @@ export function ServicesShowcase({ services, onNavigate }: ServicesShowcaseProps
                             className={`h-9 w-9 rounded-full border text-sm ${
                               testimonialForm.rating === value
                                 ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)] text-[var(--gbh-magenta)]"
-                                : "border-gray-200 text-[var(--gbh-gray-text)]"
+                                : "border-purple-200 text-[var(--gbh-gray-text)] hover:border-[var(--gbh-mint-deep)]"
                             }`}
                             onClick={() =>
                               setTestimonialForm((prev) => ({ ...prev, rating: value }))

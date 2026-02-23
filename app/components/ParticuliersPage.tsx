@@ -69,7 +69,7 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const hasServiceData = Boolean(individualServices.length);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(140deg,#f6effb,#f7fbff)]">
+    <div className="min-h-screen bg-[linear-gradient(140deg,#f6effb,#eafff9,#f7fbff)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-12">
           <div

@@ -6,16 +6,17 @@ type ButtonVariant = "default" | "outline" | "ghost" | "secondary";
 type ButtonSize = "default" | "sm" | "lg" | "icon";
 
 const baseClasses =
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gbh-magenta)] focus-visible:ring-offset-2";
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gbh-mint-deep)] focus-visible:ring-offset-2";
 
 const variantClasses: Record<ButtonVariant, string> = {
   default:
-    "bg-[linear-gradient(135deg,var(--gbh-violet-700),var(--gbh-magenta))] text-white shadow-[0_10px_24px_rgba(88,34,196,0.32)] hover:-translate-y-0.5 hover:brightness-110",
+    "bg-[linear-gradient(135deg,#6d24d9,#a33fff,#d060ff)] text-white shadow-[0_12px_30px_rgba(128,39,206,0.42)] hover:-translate-y-0.5 hover:brightness-110",
   outline:
-    "border-2 border-[var(--gbh-magenta)] text-[var(--gbh-magenta-dark)] bg-white/70 hover:bg-[var(--gbh-magenta-light)] hover:-translate-y-0.5",
-  ghost: "text-[var(--gbh-magenta)] hover:bg-[var(--gbh-magenta-light)] hover:-translate-y-0.5",
+    "border-2 border-purple-300 bg-[linear-gradient(135deg,#f2f0f5,#ece8f1)] text-[var(--gbh-violet-800)] hover:border-[var(--gbh-violet-500)] hover:bg-[linear-gradient(135deg,#f7f5fa,#f0ecf5)] hover:-translate-y-0.5",
+  ghost:
+    "bg-[linear-gradient(135deg,#f2f0f5,#ece8f1)] text-[var(--gbh-violet-800)] hover:bg-[linear-gradient(135deg,#f7f5fa,#f0ecf5)] hover:-translate-y-0.5",
   secondary:
-    "bg-[linear-gradient(135deg,#f2e8ff,#e0f7ff)] text-[var(--gbh-violet-800)] hover:-translate-y-0.5",
+    "bg-[linear-gradient(135deg,#0ebfa9,#37e3ce,#9b73ff)] text-white shadow-[0_12px_28px_rgba(38,188,169,0.36)] hover:-translate-y-0.5 hover:brightness-110",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

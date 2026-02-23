@@ -33,7 +33,7 @@ export function CaseStudiesPreview() {
   const preview = useMemo(() => caseStudies.slice(0, 3), [caseStudies]);
 
   return (
-    <section className="py-18 md:py-24 bg-[linear-gradient(180deg,#f4efff,#f8fbff)]">
+    <section className="py-18 md:py-24 bg-[linear-gradient(180deg,#f4efff,#ecfffa,#f2e9ff)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -44,7 +44,10 @@ export function CaseStudiesPreview() {
           </div>
           {preview[0] && (
             <Link href={`/etudes-de-cas/${preview[0].slug}`}>
-              <Button variant="outline" className="rounded-full border-purple-400 text-purple-900 bg-white/60">
+              <Button
+                variant="outline"
+                className="rounded-full border-purple-400 bg-white/65 text-purple-900 hover:border-[var(--gbh-mint-deep)] hover:bg-[var(--gbh-mint-soft)]"
+              >
                 Ouvrir une etude de cas
               </Button>
             </Link>
@@ -66,8 +69,8 @@ export function CaseStudiesPreview() {
               >
                 <div className="h-4 w-28 rounded bg-purple-200" />
                 <div className="mt-3 h-5 w-3/4 rounded bg-purple-200" />
-                <div className="mt-4 h-4 w-full rounded bg-purple-100" />
-                <div className="mt-2 h-4 w-5/6 rounded bg-purple-100" />
+                <div className="mt-4 h-4 w-full rounded bg-[var(--gbh-mint-soft)]" />
+                <div className="mt-2 h-4 w-5/6 rounded bg-[var(--gbh-mint-soft)]" />
               </div>
             ))}
           </div>
@@ -84,7 +87,7 @@ export function CaseStudiesPreview() {
             {preview.map((item) => (
               <article
                 key={item.id}
-                className="rounded-2xl border border-purple-200 bg-white/85 p-6 shadow-[0_14px_24px_rgba(74,32,173,0.12)] transition-all hover:-translate-y-1 hover:border-purple-400 hover:shadow-[0_24px_36px_rgba(74,32,173,0.24)]"
+                className="rounded-2xl border border-purple-200 bg-white/85 p-6 shadow-[0_14px_24px_rgba(74,32,173,0.12)] transition-all hover:-translate-y-1 hover:border-[var(--gbh-mint-deep)] hover:shadow-[0_24px_36px_rgba(74,32,173,0.24)]"
               >
                 <span className="inline-flex rounded-full bg-purple-100 px-3 py-1 text-xs text-purple-700">
                   {item.category}

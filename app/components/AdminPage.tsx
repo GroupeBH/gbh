@@ -61,10 +61,10 @@ const sidebarItems: { key: AdminSection; label: string }[] = [
 ];
 
 const statusStyles: Record<AppointmentStatus, string> = {
-  "réservé": "bg-blue-100 text-blue-700",
+  "réservé": "bg-violet-100 text-violet-700",
   "confirmé": "bg-emerald-100 text-emerald-700",
   "en attente": "bg-amber-100 text-amber-700",
-  "autre": "bg-slate-100 text-slate-700",
+  "autre": "bg-[var(--gbh-mint-soft)] text-teal-700",
 };
 
 const mapStatus = (status?: string): AppointmentStatus => {
@@ -397,7 +397,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       }}
                       className={`w-full text-left rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
                         isActive
-                          ? "bg-[var(--gbh-magenta)] text-white shadow"
+                          ? "border-purple-400 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)] shadow"
                           : "text-[var(--gbh-gray-text)] hover:bg-[var(--gbh-gray-ui)]"
                       }`}
                     >
@@ -558,8 +558,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                           onClick={() => setStatusFilter(filter.key)}
                           className={`rounded-full px-4 py-2 text-xs font-semibold border transition-all ${
                             isActive
-                              ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
-                              : "bg-white border-gray-200 text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)]"
+                              ? "border-purple-400 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
+                              : "border-purple-200 bg-[linear-gradient(140deg,#ffffff,#f8edff,#e8fffa)] text-[var(--gbh-gray-text)] hover:border-[var(--gbh-mint-deep)]"
                           }`}
                         >
                           {filter.label} ({filter.value})
@@ -867,7 +867,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="px-8 py-6 border-b border-purple-100/80 flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
                   Catalogue services
@@ -878,7 +878,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </div>
               <button
                 type="button"
-                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                className="rounded-full border border-purple-200 bg-white/90 px-3 py-1 text-sm text-[var(--gbh-gray-text)] transition-colors hover:border-[var(--gbh-mint-deep)] hover:text-[var(--gbh-violet-800)]"
                 onClick={() => {
                   setIsServiceModalOpen(false);
                   resetServiceForm();
@@ -991,7 +991,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             className="w-full max-w-3xl rounded-3xl bg-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="px-8 py-6 border-b border-purple-100/80 flex items-center justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--gbh-gray-text)]">
                   Détail du rendez-vous
@@ -1002,7 +1002,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </div>
               <button
                 type="button"
-                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                className="rounded-full border border-purple-200 bg-white/90 px-3 py-1 text-sm text-[var(--gbh-gray-text)] transition-colors hover:border-[var(--gbh-mint-deep)] hover:text-[var(--gbh-violet-800)]"
                 onClick={() => setSelectedAppointment(null)}
               >
                 Fermer

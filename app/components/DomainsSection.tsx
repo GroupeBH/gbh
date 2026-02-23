@@ -24,10 +24,10 @@ const iconByCategory = (category?: string) => {
 
 const DomainSkeletonCard = () => (
   <div className="rounded-2xl border border-purple-200 bg-white/80 p-6 shadow-sm animate-pulse">
-    <div className="h-10 w-10 rounded-xl bg-purple-200" />
+    <div className="h-10 w-10 rounded-xl bg-[linear-gradient(135deg,#dcc6ff,#c9fff3)]" />
     <div className="mt-4 h-5 w-2/3 rounded bg-purple-200" />
-    <div className="mt-3 h-4 w-full rounded bg-purple-100" />
-    <div className="mt-2 h-4 w-5/6 rounded bg-purple-100" />
+    <div className="mt-3 h-4 w-full rounded bg-[var(--gbh-mint-soft)]" />
+    <div className="mt-2 h-4 w-5/6 rounded bg-[var(--gbh-mint-soft)]" />
     <div className="mt-4 h-3 w-1/3 rounded bg-purple-100" />
   </div>
 );
@@ -86,7 +86,7 @@ export function DomainsSection({
   const cards = useMemo(() => domains.slice(0, 8), [domains]);
 
   return (
-    <section className="py-18 md:py-24 bg-[linear-gradient(180deg,#f7f2ff,#f2f8ff)]">
+    <section className="py-18 md:py-24 bg-[linear-gradient(180deg,#f8f2ff,#ecfffa,#f3eaff)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -96,8 +96,8 @@ export function DomainsSection({
           {onBookAppointment && (
             <Button
               onClick={onBookAppointment}
-              variant="outline"
-              className="rounded-full border-purple-400 text-purple-900 bg-white/60 hover:bg-white"
+              variant="secondary"
+              className="rounded-full"
             >
               Prendre rendez-vous
             </Button>
@@ -150,9 +150,9 @@ export function DomainsSection({
             {cards.map((domain) => (
               <article
                 key={domain.id}
-                className="group rounded-2xl border border-purple-200 bg-white/85 p-6 shadow-[0_14px_26px_rgba(80,33,182,0.12)] transition-all hover:-translate-y-1 hover:border-purple-400 hover:shadow-[0_24px_38px_rgba(80,33,182,0.25)]"
+                className="group rounded-2xl border border-purple-200 bg-white/85 p-6 shadow-[0_14px_26px_rgba(80,33,182,0.12)] transition-all hover:-translate-y-1 hover:border-[var(--gbh-mint-deep)] hover:shadow-[0_24px_38px_rgba(80,33,182,0.25)]"
               >
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-semibold">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#efe1ff,var(--gbh-mint-soft))] font-semibold text-purple-700">
                   {iconByCategory(domain.category)}
                 </div>
                 <h3 className="mt-4 text-lg text-purple-900">{domain.name}</h3>
@@ -166,7 +166,7 @@ export function DomainsSection({
                     </span>
                   )}
                   {domain.audience && (
-                    <span className="rounded-full bg-cyan-100 px-3 py-1 text-xs text-cyan-700">
+                    <span className="rounded-full bg-[var(--gbh-mint-soft)] px-3 py-1 text-xs text-teal-700">
                       {domain.audience}
                     </span>
                   )}

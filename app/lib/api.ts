@@ -3,6 +3,7 @@ import {
   fallbackDomains,
   fallbackReferences,
 } from "./fallback-data";
+import { getCompanyLogo } from "./company-logos";
 import type {
   CaseStudiesFetchResult,
   CaseStudy,
@@ -164,6 +165,11 @@ const normalizeReference = (item: Record<string, unknown>, index: number): Refer
     toText(item._id) ||
     toText(item.slug) ||
     `reference-${index + 1}`;
+  const client =
+    toText(item.client) ||
+    toText(item.client_name) ||
+    toText(item.organization) ||
+    "Client";
 
   const categoryRaw = toText(item.category);
   const category = (
@@ -174,11 +180,7 @@ const normalizeReference = (item: Record<string, unknown>, index: number): Refer
 
   return {
     id,
-    client:
-      toText(item.client) ||
-      toText(item.client_name) ||
-      toText(item.organization) ||
-      "Client",
+    client,
     category,
     summary:
       toText(item.summary) ||
@@ -188,6 +190,12 @@ const normalizeReference = (item: Record<string, unknown>, index: number): Refer
     value: toText(item.value) || undefined,
     year: toText(item.year) || undefined,
     location: toText(item.location) || undefined,
+    logoUrl:
+      toText(item.logo_url) ||
+      toText(item.logoUrl) ||
+      toText(item.logo) ||
+      getCompanyLogo(client) ||
+      undefined,
   };
 };
 

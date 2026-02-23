@@ -470,7 +470,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-[#fbf2ff] to-fuchsia-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-12">
           <div
@@ -614,7 +614,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 <div
                   className={`h-10 w-10 rounded-xl flex items-center justify-center font-semibold ${
                     isDone
-                      ? "bg-[var(--gbh-magenta)] text-white"
+                      ? "bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
                       : "bg-[var(--gbh-magenta-light)] text-[var(--gbh-magenta)]"
                   }`}
                 >
@@ -800,9 +800,9 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                           onClick={() => handleDateSelect(cell.date)}
                           className={`h-12 rounded-2xl flex items-center justify-center border transition-all ${
                             cell.disabled
-                              ? "text-gray-300 border-transparent"
+                              ? "text-purple-300 border-transparent"
                               : isSelected
-                              ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                              ? "border-purple-400 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
                               : "border-transparent bg-[var(--gbh-gray-ui)] hover:border-[var(--gbh-magenta)]"
                           } ${
                             cell.isToday && !isSelected
@@ -886,7 +886,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                           Disponible
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="h-2 w-2 rounded-full bg-gray-300"></span>
+                          <span className="h-2 w-2 rounded-full bg-purple-300"></span>
                           Indisponible
                         </div>
                       </div>
@@ -911,11 +911,11 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                               className={`rounded-2xl border px-3 py-2 text-sm transition-all ${
                                 isAvailable
                                   ? isSelected
-                                    ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                                    ? "border-purple-400 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
                                     : "border-transparent bg-white hover:border-[var(--gbh-magenta-light)]"
                                   : isPending
-                                  ? "border-dashed border-gray-200 bg-white/80 text-gray-400 cursor-not-allowed"
-                                  : "border-transparent bg-gray-100 text-gray-400 line-through cursor-not-allowed"
+                                  ? "border-dashed border-purple-100 bg-white/85 text-purple-300 cursor-not-allowed"
+                                  : "border-dashed border-purple-100 bg-purple-50/60 text-purple-300 line-through cursor-not-allowed"
                               }`}
                               title={
                                 isAvailable
@@ -1132,7 +1132,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                   </div>
                 )}
                 {paymentMessage && (
-                  <div className="rounded-2xl px-4 py-3 text-sm bg-indigo-50 text-indigo-700">
+                  <div className="rounded-2xl px-4 py-3 text-sm bg-purple-50 text-purple-700">
                     {paymentMessage}
                   </div>
                 )}
@@ -1232,7 +1232,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
               </div>
               <button
                 type="button"
-                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-[var(--gbh-gray-text)] hover:border-[var(--gbh-magenta)] hover:text-[var(--gbh-magenta)] transition-colors"
+                className="rounded-full border border-purple-200 bg-white/90 px-3 py-1 text-sm text-[var(--gbh-gray-text)] transition-colors hover:border-[var(--gbh-mint-deep)] hover:text-[var(--gbh-violet-800)]"
                 onClick={() => setConfirmation(null)}
               >
                 Fermer

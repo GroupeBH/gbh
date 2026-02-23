@@ -24,6 +24,7 @@ type MenuItem =
 
 const menuItems: MenuItem[] = [
   { label: "Accueil", kind: "hash", value: "home" },
+  { label: "A propos", kind: "path", value: "/a-propos", activeOn: "a-propos" },
   // { label: "Particuliers", kind: "hash", value: "particuliers" },
   // { label: "Organisations", kind: "hash", value: "organisations" },
   { label: "Domaines", kind: "hash", value: "domaines" },
@@ -57,7 +58,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
     item.kind === "hash" ? currentPage === item.value : currentPage === item.activeOn;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-purple-200/50 bg-[linear-gradient(140deg,#f7f1ff_0%,#f6f9ff_45%,#ece4ff_100%)] backdrop-blur-xl shadow-[0_10px_30px_rgba(73,37,128,0.18)]">
+    <header className="sticky top-0 z-50 border-b border-purple-200/70 bg-[linear-gradient(140deg,#fff2ff_0%,#f6eeff_36%,#e8fffa_70%,#efd2ff_100%)] backdrop-blur-xl shadow-[0_10px_34px_rgba(111,22,186,0.24)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <button
@@ -80,14 +81,14 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
             </div>
           </button>
 
-          <nav className="hidden xl:flex items-center gap-1 rounded-full border border-purple-300/50 bg-white/60 p-1 backdrop-blur">
+          <nav className="hidden xl:flex items-center gap-1 rounded-full border border-purple-300/45 bg-white/65 p-1 backdrop-blur">
             {menuItems.map((item) => (
               <button
                 key={`${item.kind}-${item.value}`}
                 onClick={() => handleSelect(item)}
                 className={`px-4 py-2 rounded-xl transition-all ${
                   isActive(item)
-                    ? "text-white bg-[linear-gradient(135deg,#5f27d8,#8b47ff)] shadow-[0_6px_14px_rgba(99,41,212,0.45)]"
+                    ? "text-[var(--gbh-violet-900)] bg-[linear-gradient(135deg,#f3e5ff,#d8c0ff,#c8fff4)] shadow-[0_7px_16px_rgba(135,92,182,0.28)]"
                     : "text-purple-800 hover:bg-white/70"
                 }`}
               >
@@ -99,14 +100,14 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
           <div className="hidden lg:flex items-center gap-3">
             <Button
               onClick={() => navigateToPath("/organisations")}
-              variant="outline"
-              className="rounded-full border-purple-400 bg-white/60 text-purple-900 hover:bg-white"
+              className="rounded-full"
             >
-              Demander une proposition
+              Lancer une consultation B2B
             </Button>
             <Button
               onClick={() => onNavigate("rdv")}
-              className="rounded-full bg-[linear-gradient(135deg,#6f31ef,#8f56ff)] hover:brightness-110"
+              variant="secondary"
+              className="rounded-full"
             >
               Prendre rendez-vous
             </Button>
@@ -130,7 +131,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
         </div>
         {menuOpen && (
           <div className="xl:hidden pb-5">
-            <div className="rounded-2xl border border-purple-300/50 bg-[linear-gradient(140deg,#f7f1ff_0%,#f6f9ff_45%,#ece4ff_100%)] p-4 shadow-2xl">
+            <div className="rounded-2xl border border-fuchsia-300/50 bg-[linear-gradient(140deg,#fff2ff_0%,#f6eeff_36%,#e8fffa_70%,#efd2ff_100%)] p-4 shadow-2xl">
               <div className="grid gap-2">
                 {menuItems.map((item) => (
                   <button
@@ -141,7 +142,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
                     }}
                     className={`w-full rounded-xl px-4 py-2 text-left transition-all ${
                       isActive(item)
-                        ? "text-white bg-[linear-gradient(135deg,#5f27d8,#8b47ff)] shadow-[0_6px_14px_rgba(99,41,212,0.35)]"
+                        ? "text-[var(--gbh-violet-900)] bg-[linear-gradient(135deg,#f3e5ff,#d8c0ff,#c8fff4)] shadow-[0_6px_14px_rgba(135,92,182,0.25)]"
                         : "text-purple-900 hover:bg-white/70"
                     }`}
                   >
@@ -154,17 +155,17 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
                   setMenuOpen(false);
                   navigateToPath("/organisations");
                 }}
-                variant="outline"
-                className="mt-4 w-full rounded-full border-purple-400 bg-white/60 text-purple-900 hover:bg-white"
+                className="mt-4 w-full rounded-full"
               >
-                Demander une proposition
+                Lancer une consultation B2B
               </Button>
               <Button
                 onClick={() => {
                   setMenuOpen(false);
                   onNavigate("rdv");
                 }}
-                className="mt-3 w-full rounded-full bg-[linear-gradient(135deg,#6f31ef,#8f56ff)] hover:brightness-110"
+                variant="secondary"
+                className="mt-3 w-full rounded-full"
               >
                 Prendre rendez-vous
               </Button>

@@ -54,6 +54,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Apport d'affaires",
     summary: "Apport d'affaires et mise en relation sur des opportunites multisectorielles.",
     location: "RDC",
+    logoUrl: "/cfao.png",
   },
   {
     id: "ref-anapi",
@@ -61,6 +62,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Formations",
     summary: "Programmes de formation cibles pour renforcement de capacites.",
     location: "Kinshasa",
+    logoUrl: "/anapi.png",
   },
   {
     id: "ref-snel",
@@ -68,6 +70,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Formations",
     summary: "Sessions de formation operationnelle et accompagnement des equipes.",
     location: "RDC",
+    logoUrl: "/snel.jpg",
   },
   {
     id: "ref-regideso",
@@ -75,6 +78,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Fourniture & montage",
     summary: "Fourniture, acquisition et montage de solutions techniques.",
     location: "RDC",
+    logoUrl: "/regideso.webp",
   },
   {
     id: "ref-acgt",
@@ -82,6 +86,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Fourniture & montage",
     summary: "Interventions en tant que fournisseur et prestataire de services.",
     location: "RDC",
+    logoUrl: "/acgt.png",
   },
   {
     id: "ref-sonal",
@@ -89,6 +94,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Apport d'affaires",
     summary: "Structuration d'opportunites commerciales et accompagnement business.",
     location: "RDC",
+    logoUrl: "/sonal.png",
   },
   {
     id: "ref-kamoto",
@@ -96,6 +102,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Mines",
     summary: "Sous-traitance miniere et support operationnel sur site.",
     location: "Katanga",
+    logoUrl: "/kamoto.svg",
   },
   {
     id: "ref-kamoa",
@@ -103,6 +110,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Mines",
     summary: "Prestations de sous-traitance et coordination d'execution terrain.",
     location: "Katanga",
+    logoUrl: "/kamoa.png",
   },
   {
     id: "ref-tenke",
@@ -110,6 +118,7 @@ export const fallbackReferences: ReferenceItem[] = [
     category: "Mines",
     summary: "Appui operationnel et fourniture de services de support minier.",
     location: "Katanga",
+    logoUrl: "/dgi.png",
   },
 ];
 

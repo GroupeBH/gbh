@@ -112,7 +112,11 @@ export function TermsPage({ onNavigate }: TermsPageProps) {
             >
               Retour accueil
             </Button>
-            <Button type="button" variant="outline" onClick={() => onNavigate("rdv")}>
+            <Button
+              type="button"
+              onClick={() => onNavigate("rdv")}
+              variant="secondary"
+            >
               Prendre rendez-vous
             </Button>
           </div>

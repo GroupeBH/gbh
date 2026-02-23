@@ -12,10 +12,11 @@ type FooterLink =
 
 const quickLinks: FooterLink[] = [
   { label: "Accueil", kind: "hash", value: "home" },
+  { label: "A propos", kind: "path", value: "/a-propos" },
   { label: "Plateforme RDV", kind: "hash", value: "rdv" },
   { label: "Domaines", kind: "hash", value: "domaines" },
   { label: "References", kind: "path", value: "/references" },
-  { label: "Organisations", kind: "path", value: "/organisations" },
+  { label: "Consultation B2B", kind: "path", value: "/organisations" },
 ];
 
 const infoLinks: FooterLink[] = [
@@ -47,7 +48,7 @@ export function Footer({ onNavigate }: FooterProps) {
   };
 
   return (
-    <footer className="mt-20 border-t border-purple-300/20 bg-[radial-gradient(circle_at_top_right,rgba(102,220,255,0.2),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(123,51,255,0.22),transparent_35%),linear-gradient(145deg,#11082c,#24105a)] text-white">
+    <footer className="mt-20 border-t border-purple-300/20 bg-[radial-gradient(circle_at_top_right,rgba(235,115,255,0.24),transparent_30%),radial-gradient(circle_at_15%_88%,rgba(114,246,223,0.34),transparent_34%),radial-gradient(circle_at_78%_22%,rgba(114,246,223,0.26),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(186,58,255,0.22),transparent_35%),linear-gradient(145deg,#35235f,#6d47a1,#36d2be)] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
           <div>
@@ -95,7 +96,7 @@ export function Footer({ onNavigate }: FooterProps) {
                   key={`${item.kind}-${item.value}`}
                   type="button"
                   onClick={() => navigate(item)}
-                  className="block hover:text-cyan-200 transition-colors text-left"
+                  className="block text-left transition-colors hover:text-cyan-200"
                 >
                   {item.label}
                 </button>
@@ -116,7 +117,7 @@ export function Footer({ onNavigate }: FooterProps) {
                   key={`${item.kind}-${item.value}`}
                   type="button"
                   onClick={() => navigate(item)}
-                  className="block text-sm text-purple-100/90 hover:text-cyan-200 transition-colors text-left mb-2"
+                  className="mb-2 block text-left text-sm text-purple-100/90 transition-colors hover:text-cyan-200"
                 >
                   {item.label}
                 </button>
@@ -132,4 +133,5 @@ export function Footer({ onNavigate }: FooterProps) {
     </footer>
   );
 }
+
 
