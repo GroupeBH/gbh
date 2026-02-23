@@ -12,8 +12,7 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-18 md:py-22">
           <h1 className="text-4xl md:text-5xl text-purple-900">Domaines expertise GBH</h1>
           <p className="mt-5 text-lg text-purple-700 max-w-3xl">
-            Une section robuste qui reste utilisable meme en cas indisponibilite API
-            grace au mode fallback.
+            Une section robuste qui reste utilisable meme en cas d&apos;indisponibilite API.
           </p>
         </div>
       </section>

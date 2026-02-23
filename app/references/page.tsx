@@ -19,7 +19,6 @@ export default function ReferencesPage() {
   const [references, setReferences] = useState<ReferenceItem[]>([]);
   const [activeCategory, setActiveCategory] = useState<(typeof categories)[number]>("Tous");
   const [isLoading, setIsLoading] = useState(true);
-  const [fallbackMessage, setFallbackMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -30,7 +29,6 @@ export default function ReferencesPage() {
       if (!mounted) return;
 
       setReferences(result.references);
-      setFallbackMessage(result.fromFallback ? result.apiError || "Mode fallback actif." : null);
       setIsLoading(false);
     };
 
@@ -80,12 +78,6 @@ export default function ReferencesPage() {
               </button>
             ))}
           </div>
-
-          {fallbackMessage && (
-            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              {fallbackMessage}
-            </div>
-          )}
 
           {isLoading && (
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

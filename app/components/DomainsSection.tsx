@@ -39,19 +39,19 @@ export function DomainsSection({
 }: DomainsSectionProps) {
   const [domains, setDomains] = useState<ServiceDomain[]>([]);
   const [loadState, setLoadState] = useState<LoadState>("loading");
-  const [isFallback, setIsFallback] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const applyResult = useCallback((result: Awaited<ReturnType<typeof getServiceDomains>>) => {
     setDomains(result.domains);
 
     if (result.fromFallback) {
+      if (result.domains.length > 0) {
+        setLoadState("success");
+        setErrorMessage(null);
+        return;
+      }
       setLoadState("error");
-      setIsFallback(true);
-      setErrorMessage(
-        result.apiError ||
-          "Impossible de joindre API domaines. Affichage du mode secours.",
-      );
+      setErrorMessage(result.apiError || "Erreur de chargement des domaines.");
       return;
     }
 
@@ -122,7 +122,6 @@ export function DomainsSection({
                 onClick={() => {
                   setLoadState("loading");
                   setErrorMessage(null);
-                  setIsFallback(false);
                   void loadDomains();
                 }}
                 variant="outline"
@@ -130,11 +129,6 @@ export function DomainsSection({
               >
                 Reessayer
               </Button>
-              {isFallback && (
-                <span className="text-xs uppercase tracking-[0.18em] text-amber-800">
-                  Mode fallback actif
-                </span>
-              )}
             </div>
           </div>
         )}

@@ -38,7 +38,7 @@ const logoEntries: CompanyLogoEntry[] = [
   },
   {
     aliases: ["tenke fungurume", "tenke"],
-    logoSrc: "/dgi.png",
+    logoSrc: "/tenkefungurume.png",
   },
 ];
 
