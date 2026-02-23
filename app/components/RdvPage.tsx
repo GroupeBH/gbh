@@ -183,6 +183,39 @@ const mapServiceToOption = (service: Service, index: number): ServiceOption => {
   };
 };
 
+const ServicesStepSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 animate-pulse">
+    {Array.from({ length: 4 }).map((_, index) => (
+      <div
+        key={`rdv-service-skeleton-${index}`}
+        className="rounded-3xl border border-[var(--gbh-magenta-light)] bg-white p-6 shadow-sm"
+      >
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="w-full">
+            <div className="h-5 w-2/3 rounded bg-[var(--gbh-magenta-light)]" />
+            <div className="mt-2 h-4 w-1/2 rounded bg-[var(--gbh-gray-ui)]" />
+          </div>
+          <div className="h-6 w-16 rounded-full bg-[var(--gbh-magenta-light)]" />
+        </div>
+        <div className="h-4 w-full rounded bg-[var(--gbh-gray-ui)]" />
+        <div className="mt-2 h-4 w-5/6 rounded bg-[var(--gbh-gray-ui)]" />
+        <div className="mt-4 h-9 w-32 rounded-full bg-[var(--gbh-magenta-light)]" />
+      </div>
+    ))}
+  </div>
+);
+
+const AvailabilitySkeleton = () => (
+  <div className="mt-4 grid grid-cols-3 gap-3 animate-pulse">
+    {Array.from({ length: 9 }).map((_, index) => (
+      <div
+        key={`rdv-slot-skeleton-${index}`}
+        className="h-10 rounded-2xl bg-[var(--gbh-gray-ui)]"
+      />
+    ))}
+  </div>
+);
+
 export function RdvPage({ onNavigate }: RdvPageProps) {
   const { data: servicesData, isLoading: isServicesLoading, isError: isServicesError } =
     useGetServicesQuery();
@@ -623,11 +656,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 </Badge>
               </div>
 
-              {isServicesLoading && (
-                <p className="text-[var(--gbh-gray-text)] mb-6">
-                  Chargement des services...
-                </p>
-              )}
+              {isServicesLoading && <ServicesStepSkeleton />}
               {!isServicesLoading && isServicesError && (
                 <p className="text-rose-600 mb-6">
                   Impossible de charger les services. Vérifiez que l'API est en ligne.
@@ -829,9 +858,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                     )}
 
                     {selectedDate && fullSlots.length > 0 && availabilityState === "loading" && (
-                      <p className="text-sm text-[var(--gbh-gray-text)]">
-                        Chargement des créneaux disponibles...
-                      </p>
+                      <AvailabilitySkeleton />
                     )}
 
                     {selectedDate &&
@@ -865,43 +892,45 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                       </div>
                     )}
 
-                    <div className="grid grid-cols-3 gap-3 mt-4">
-                      {fullSlots.map((slot) => {
-                        const isSelected = selectedTime === slot;
-                        const isAvailable =
-                          availabilityState === "ready" && availableSlotSet.has(slot);
-                        const isPending =
-                          availabilityState === "loading" || availabilityState === "error";
-                        return (
-                          <button
-                            key={slot}
-                            type="button"
-                            disabled={!isAvailable}
-                            onClick={() => {
-                              if (isAvailable) setSelectedTime(slot);
-                            }}
-                            className={`rounded-2xl border px-3 py-2 text-sm transition-all ${
-                              isAvailable
-                                ? isSelected
-                                  ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
-                                  : "border-transparent bg-white hover:border-[var(--gbh-magenta-light)]"
-                                : isPending
-                                ? "border-dashed border-gray-200 bg-white/80 text-gray-400 cursor-not-allowed"
-                                : "border-transparent bg-gray-100 text-gray-400 line-through cursor-not-allowed"
-                            }`}
-                            title={
-                              isAvailable
-                                ? "Créneau disponible"
-                                : availabilityState === "ready"
-                                ? "Créneau indisponible"
-                                : "Chargement des disponibilités"
-                            }
-                          >
-                            {slot}
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {!(selectedDate && fullSlots.length > 0 && availabilityState === "loading") && (
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        {fullSlots.map((slot) => {
+                          const isSelected = selectedTime === slot;
+                          const isAvailable =
+                            availabilityState === "ready" && availableSlotSet.has(slot);
+                          const isPending =
+                            availabilityState === "loading" || availabilityState === "error";
+                          return (
+                            <button
+                              key={slot}
+                              type="button"
+                              disabled={!isAvailable}
+                              onClick={() => {
+                                if (isAvailable) setSelectedTime(slot);
+                              }}
+                              className={`rounded-2xl border px-3 py-2 text-sm transition-all ${
+                                isAvailable
+                                  ? isSelected
+                                    ? "bg-[var(--gbh-magenta)] text-white border-[var(--gbh-magenta)]"
+                                    : "border-transparent bg-white hover:border-[var(--gbh-magenta-light)]"
+                                  : isPending
+                                  ? "border-dashed border-gray-200 bg-white/80 text-gray-400 cursor-not-allowed"
+                                  : "border-transparent bg-gray-100 text-gray-400 line-through cursor-not-allowed"
+                              }`}
+                              title={
+                                isAvailable
+                                  ? "Créneau disponible"
+                                  : availabilityState === "ready"
+                                  ? "Créneau indisponible"
+                                  : "Chargement des disponibilités"
+                              }
+                            >
+                              {slot}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

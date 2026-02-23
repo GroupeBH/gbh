@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
+import { AdminB2BPanel } from "./AdminB2BPanel";
 import {
   useAdminCreateBlockMutation,
   useAdminCreateServiceMutation,
@@ -23,7 +24,13 @@ interface AdminPageProps {
 
 type AppointmentStatus = "réservé" | "en attente" | "confirmé" | "autre";
 type AppointmentFilter = "tous" | AppointmentStatus;
-type AdminSection = "dashboard" | "appointments" | "messages" | "services" | "settings";
+type AdminSection =
+  | "dashboard"
+  | "appointments"
+  | "messages"
+  | "services"
+  | "b2b"
+  | "settings";
 
 type AppointmentRow = {
   id: string;
@@ -49,6 +56,7 @@ const sidebarItems: { key: AdminSection; label: string }[] = [
   { key: "appointments", label: "Rendez-vous" },
   { key: "messages", label: "Messages" },
   { key: "services", label: "Services" },
+  { key: "b2b", label: "Modules B2B" },
   { key: "settings", label: "Paramètres" },
 ];
 
@@ -825,6 +833,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 </div>
               </div>
             )}
+
+            {activeSection === "b2b" && <AdminB2BPanel />}
 
             {activeSection === "settings" && (
               <div className="rounded-3xl bg-white p-8 shadow-2xl">

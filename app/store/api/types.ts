@@ -89,3 +89,94 @@ export type PaymentIntentResponse = {
   currency: string;
   method: string;
 };
+
+export type B2BRfpStatus = "new" | "reviewing" | "qualified" | "won" | "lost";
+export type B2BRfpSource = "website" | "whatsapp" | "manual";
+
+export type B2BRfpLead = {
+  id: string;
+  organization: string;
+  sector?: string;
+  domain: string;
+  deadline?: string;
+  budget_range?: string;
+  contact_name?: string;
+  phone: string;
+  email?: string;
+  description: string;
+  status: B2BRfpStatus;
+  source: B2BRfpSource;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type B2BRfpListResponse = {
+  items: B2BRfpLead[];
+  limit: number;
+  offset: number;
+  total: number;
+};
+
+export type B2BReference = {
+  id: string;
+  client_name: string;
+  category: string;
+  summary: string;
+  location: string;
+  logo_url?: string;
+  is_public: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type B2BReferenceUpsertRequest = {
+  client_name: string;
+  category: string;
+  summary: string;
+  location: string;
+  logo_url?: string;
+  is_public?: boolean;
+  sort_order?: number;
+};
+
+export type B2BReferenceListResponse = {
+  items: B2BReference[];
+  limit: number;
+  offset: number;
+  total: number;
+};
+
+export type B2BCaseStudy = {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+  client_name: string;
+  problem: string;
+  solution: string;
+  result: string;
+  is_published: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type B2BCaseStudyUpsertRequest = {
+  slug?: string;
+  title: string;
+  category: string;
+  client_name: string;
+  problem: string;
+  solution: string;
+  result: string;
+  is_published?: boolean;
+  sort_order?: number;
+};
+
+export type B2BCaseStudyListResponse = {
+  items: B2BCaseStudy[];
+  limit: number;
+  offset: number;
+  total: number;
+};
