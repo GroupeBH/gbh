@@ -5,6 +5,7 @@ import {
   adminAuthApi,
   appointmentsApi,
   availabilityApi,
+  b2bAdminApi,
   blocksApi,
   contactsApi,
   paymentsApi,
@@ -22,6 +23,7 @@ export const store = configureStore({
     [paymentsApi.reducerPath]: paymentsApi.reducer,
     [blocksApi.reducerPath]: blocksApi.reducer,
     [adminAuthApi.reducerPath]: adminAuthApi.reducer,
+    [b2bAdminApi.reducerPath]: b2bAdminApi.reducer,
     admin: adminReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -33,6 +35,7 @@ export const store = configureStore({
       paymentsApi.middleware,
       blocksApi.middleware,
       adminAuthApi.middleware,
+      b2bAdminApi.middleware,
       adminSessionMiddleware,
     ),
 });

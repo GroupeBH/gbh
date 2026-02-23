@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { Header } from "./Header";
@@ -14,6 +14,8 @@ import { AdminRegisterPage } from "./AdminRegisterPage";
 import { LegalNoticePage } from "./LegalNoticePage";
 import { PrivacyPolicyPage } from "./PrivacyPolicyPage";
 import { TermsPage } from "./TermsPage";
+import { FloatingWhatsAppButton } from "./FloatingWhatsAppButton";
+import { StickyRfpCta } from "./StickyRfpCta";
 
 type Page =
   | "home"
@@ -96,10 +98,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f2ff,#ecfffa,#f2e9ff)]">
       <Header currentPage={currentPage} onNavigate={handleNavigate} />
       <main>{renderPage()}</main>
       <Footer onNavigate={handleNavigate} />
+      <StickyRfpCta />
+      <FloatingWhatsAppButton context={currentPage} />
     </div>
   );
 }
+

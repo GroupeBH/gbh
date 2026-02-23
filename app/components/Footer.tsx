@@ -1,36 +1,59 @@
+"use client";
+
 import Image from "next/image";
 
 interface FooterProps {
   onNavigate: (page: string) => void;
 }
 
-const quickLinks = [
-  { label: "Accueil", value: "home" },
-  { label: "Particuliers", value: "particuliers" },
-  { label: "Organisations", value: "organisations" },
-  { label: "Domaines", value: "domaines" },
+type FooterLink =
+  | { label: string; kind: "hash"; value: string }
+  | { label: string; kind: "path"; value: string };
+
+const quickLinks: FooterLink[] = [
+  { label: "Accueil", kind: "hash", value: "home" },
+  { label: "A propos", kind: "path", value: "/a-propos" },
+  { label: "Plateforme RDV", kind: "hash", value: "rdv" },
+  { label: "Domaines", kind: "hash", value: "domaines" },
+  { label: "References", kind: "path", value: "/references" },
+  { label: "Consultation B2B", kind: "path", value: "/organisations" },
 ];
 
-const infoLinks = [
-  { label: "Mentions legales", value: "mentions-legales" },
-  { label: "Politique de confidentialite", value: "politique-confidentialite" },
-  { label: "Conditions utilisation", value: "conditions-utilisation" },
+const infoLinks: FooterLink[] = [
+  { label: "Mentions legales", kind: "hash", value: "mentions-legales" },
+  {
+    label: "Politique de confidentialite",
+    kind: "hash",
+    value: "politique-confidentialite",
+  },
+  {
+    label: "Conditions d'utilisation",
+    kind: "hash",
+    value: "conditions-utilisation",
+  },
 ];
+
+const handlePathNavigation = (path: string) => {
+  if (typeof window === "undefined") return;
+  window.location.href = path;
+};
 
 export function Footer({ onNavigate }: FooterProps) {
+  const navigate = (item: FooterLink) => {
+    if (item.kind === "hash") {
+      onNavigate(item.value);
+      return;
+    }
+    handlePathNavigation(item.value);
+  };
+
   return (
-    <footer
-      className="mt-20"
-      style={{
-        background:
-          "linear-gradient(135deg, var(--gbh-magenta-dark) 0%, var(--gbh-magenta) 100%)",
-      }}
-    >
+    <footer className="mt-20 border-t border-purple-300/20 bg-[radial-gradient(circle_at_top_right,rgba(235,115,255,0.24),transparent_30%),radial-gradient(circle_at_15%_88%,rgba(114,246,223,0.34),transparent_34%),radial-gradient(circle_at_78%_22%,rgba(114,246,223,0.26),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(186,58,255,0.22),transparent_35%),linear-gradient(145deg,#35235f,#6d47a1,#36d2be)] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 text-white">
-          <div className="col-span-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+          <div>
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-14 h-14 rounded-2xl border border-purple-300/25 bg-white/90 flex items-center justify-center shadow-lg">
                 <Image
                   src="/gbh.png"
                   alt="Logo GBH"
@@ -40,49 +63,40 @@ export function Footer({ onNavigate }: FooterProps) {
                 />
               </div>
               <div>
-                <div className="font-semibold text-lg">Groupe B-Holding</div>
-                <div className="text-sm opacity-90">Sarl</div>
+                <p className="font-semibold text-lg">Groupe B-Holding</p>
+                <p className="text-sm text-purple-200">Sarl</p>
               </div>
             </div>
-            <p className="text-sm opacity-90 leading-relaxed">
-              Une entreprise multiservices au service des particuliers et des
-              organisations en RDC
+            <p className="text-sm text-purple-100/90 leading-relaxed">
+              Partenaire multiservices pour particuliers et organisations en RDC, avec
+              une execution orientee resultat.
             </p>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Coordonnees</h4>
-            <div className="space-y-3 text-sm opacity-90">
-              <p className="flex items-start gap-2">
-                <span>📍</span>
-                <span>
-                  Avenue A Adama, vers Socimat
-                  <br />
-                  Boulevard Sendwe, immeuble ADI Construct
-                  <br />
-                  Kinshasa, RDC
-                </span>
+            <h4 className="text-lg font-semibold mb-4">Coordonnees</h4>
+            <div className="space-y-3 text-sm text-purple-100/90">
+              <p>
+                Avenue A Adama, vers Socimat
+                <br />
+                Boulevard Sendwe, immeuble ADI Construct
+                <br />
+                Kinshasa, RDC
               </p>
-              <p className="flex items-start gap-2">
-                <span>📧</span>
-                <span>contact@gbh.sarl</span>
-              </p>
-              <p className="flex items-start gap-2">
-                <span>📞</span>
-                <span>+243 999 403 012</span>
-              </p>
+              <p>contact@gbh.sarl</p>
+              <p>+243 999 403 012</p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Liens rapides</h4>
-            <div className="space-y-3 text-sm opacity-90">
+            <h4 className="text-lg font-semibold mb-4">Navigation</h4>
+            <div className="space-y-2 text-sm text-purple-100/90">
               {quickLinks.map((item) => (
                 <button
-                  key={item.value}
+                  key={`${item.kind}-${item.value}`}
                   type="button"
-                  onClick={() => onNavigate(item.value)}
-                  className="block hover:opacity-100 cursor-pointer transition-opacity text-left"
+                  onClick={() => navigate(item)}
+                  className="block text-left transition-colors hover:text-cyan-200"
                 >
                   {item.label}
                 </button>
@@ -91,14 +105,19 @@ export function Footer({ onNavigate }: FooterProps) {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4 text-lg">Informations</h4>
-            <div className="space-y-3 text-sm opacity-90">
+            <h4 className="text-lg font-semibold mb-4">Confiance</h4>
+            <div className="space-y-2 text-sm text-purple-100/90">
+              <p>Confidentialite des informations clients</p>
+              <p>Reporting avancement structure</p>
+              <p>Approche contractuelle B2B</p>
+            </div>
+            <div className="mt-5 border-t border-purple-300/25 pt-5">
               {infoLinks.map((item) => (
                 <button
-                  key={item.value}
+                  key={`${item.kind}-${item.value}`}
                   type="button"
-                  onClick={() => onNavigate(item.value)}
-                  className="block hover:opacity-100 cursor-pointer transition-opacity text-left"
+                  onClick={() => navigate(item)}
+                  className="mb-2 block text-left text-sm text-purple-100/90 transition-colors hover:text-cyan-200"
                 >
                   {item.label}
                 </button>
@@ -107,13 +126,12 @@ export function Footer({ onNavigate }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-white/20 mt-12 pt-8 text-center text-sm text-white/80">
-          <p>
-            © {new Date().getFullYear()} Groupe B-Holding Sarl. Tous droits
-            reserves.
-          </p>
+        <div className="border-t border-purple-300/25 mt-10 pt-6 text-sm text-purple-200/75 text-center">
+          (c) {new Date().getFullYear()} Groupe B-Holding Sarl. Tous droits reserves.
         </div>
       </div>
     </footer>
   );
 }
+
+

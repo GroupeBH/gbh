@@ -34,6 +34,23 @@ const serviceMatchesQuery = (service: Service, query: string) => {
   return haystack.some((item) => item.includes(query));
 };
 
+const ServicesLoadingSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse mb-8">
+    {Array.from({ length: 6 }).map((_, index) => (
+      <div
+        key={`particuliers-skeleton-${index}`}
+        className="rounded-2xl border border-[var(--gbh-magenta-light)] bg-white/80 p-6 shadow-sm"
+      >
+        <div className="h-10 w-10 rounded-xl bg-[var(--gbh-magenta-light)]" />
+        <div className="mt-4 h-5 w-3/4 rounded bg-[var(--gbh-magenta-light)]" />
+        <div className="mt-3 h-4 w-full rounded bg-[var(--gbh-gray-ui)]" />
+        <div className="mt-2 h-4 w-5/6 rounded bg-[var(--gbh-gray-ui)]" />
+        <div className="mt-5 h-9 w-full rounded-xl bg-[var(--gbh-magenta-light)]" />
+      </div>
+    ))}
+  </div>
+);
+
 export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const { data, isLoading, isError } = useGetServicesQuery();
@@ -52,7 +69,7 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
   const hasServiceData = Boolean(individualServices.length);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-[linear-gradient(140deg,#f6effb,#eafff9,#f7fbff)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-12">
           <div
@@ -65,30 +82,21 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
             FOR INDIVIDUALS
           </div>
           <h1 className="mb-4 text-[var(--gbh-black-soft)] text-4xl md:text-6xl">
-            Services pour{" "}
-            <span className="relative inline-block">
-              <span className="relative z-10">Particuliers</span>
-              <span
-                className="absolute bottom-2 left-0 w-full h-3 -z-0"
-                style={{ backgroundColor: "#D4FF00" }}
-              ></span>
-            </span>
+            Services pour Particuliers
           </h1>
           <p className="text-xl text-[var(--gbh-gray-text)]">
-            Accédez à nos services professionnels sur rendez-vous
+            Accedez a nos services professionnels sur rendez-vous
           </p>
         </div>
 
         <div className="max-w-2xl mx-auto mb-16">
           <div className="relative">
-            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl">
-              🔍
-            </span>
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-2xl">S</span>
             <Input
               type="text"
-              placeholder="Rechercher un domaine (conseil, formation, numérique…)"
+              placeholder="Rechercher un domaine (conseil, formation, numerique...)"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(event) => setSearchQuery(event.target.value)}
               className="pl-14 pr-6 py-7 text-lg rounded-2xl border-2 shadow-lg focus:shadow-xl transition-all"
               style={{
                 borderColor: searchQuery ? "var(--gbh-magenta)" : undefined,
@@ -97,16 +105,14 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
           </div>
         </div>
 
-        {isLoading && (
-          <div className="text-center text-[var(--gbh-gray-text)] mb-8">
-            Chargement des services...
-          </div>
-        )}
+        {isLoading && <ServicesLoadingSkeleton />}
+
         {!isLoading && isError && (
           <div className="text-center text-rose-600 mb-8">
-            Impossible de charger les domaines. Vérifiez que l'API est en ligne.
+            Impossible de charger les domaines. Verifiez que le backend est en ligne.
           </div>
         )}
+
         {!isLoading && !isError && !hasServiceData && (
           <div className="text-center text-[var(--gbh-gray-text)] mb-8">
             Aucun domaine disponible pour le moment.
@@ -119,9 +125,9 @@ export function ParticuliersPage({ onNavigate }: ParticuliersPageProps) {
 
         {hasServiceData && filteredServices.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
+            <div className="text-6xl mb-4">S</div>
             <p className="text-xl text-[var(--gbh-gray-text)]">
-              Aucun domaine trouvé pour "{searchQuery}"
+              Aucun domaine trouve pour la recherche: {searchQuery}
             </p>
           </div>
         )}

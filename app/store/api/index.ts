@@ -7,6 +7,7 @@ export { contactsApi } from "./contactsApi";
 export { paymentsApi } from "./paymentsApi";
 export { blocksApi } from "./blocksApi";
 export { adminAuthApi } from "./adminAuthApi";
+export { b2bAdminApi } from "./b2bAdminApi";
 
 export {
   useGetServicesQuery,
@@ -39,3 +40,17 @@ export {
   useAdminRefreshMutation,
   useAdminLogoutMutation,
 } from "./adminAuthApi";
+
+export {
+  useAdminListRfpQuery,
+  useAdminGetRfpByIdQuery,
+  useAdminUpdateRfpStatusMutation,
+  useAdminListB2bReferencesQuery,
+  useAdminCreateB2bReferenceMutation,
+  useAdminUpdateB2bReferenceMutation,
+  useAdminDeleteB2bReferenceMutation,
+  useAdminListB2bCaseStudiesQuery,
+  useAdminCreateB2bCaseStudyMutation,
+  useAdminUpdateB2bCaseStudyMutation,
+  useAdminDeleteB2bCaseStudyMutation,
+} from "./b2bAdminApi";
