@@ -188,7 +188,7 @@ const ServicesStepSkeleton = () => (
     {Array.from({ length: 4 }).map((_, index) => (
       <div
         key={`rdv-service-skeleton-${index}`}
-        className="rounded-3xl border border-[var(--gbh-magenta-light)] bg-white p-6 shadow-sm"
+        className="rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(243,233,249,0.72),rgba(227,255,249,0.64))] p-6 shadow-[0_10px_20px_rgba(71,31,172,0.1)]"
       >
         <div className="flex items-start justify-between gap-4 mb-3">
           <div className="w-full">
@@ -470,26 +470,17 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-[#fbf2ff] to-fuchsia-50">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f7f2ff,#ecfffa,#f2e9ff)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-12">
-          <div
-            className="inline-block px-4 py-2 rounded-full mb-4 text-sm"
-            style={{
-              backgroundColor: "var(--gbh-magenta-light)",
-              color: "var(--gbh-magenta)",
-            }}
-          >
+          <div className="inline-flex rounded-full border border-purple-300 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] px-4 py-2 text-sm font-semibold text-[var(--gbh-violet-900)] shadow-[0_10px_20px_rgba(124,48,213,0.18)]">
             PLATEFORME RDV
           </div>
           <h1 className="mb-4 text-[var(--gbh-black-soft)] text-4xl md:text-6xl">
             Prenez rendez-vous{" "}
             <span className="relative inline-block">
               <span className="relative z-10">avec nos experts</span>
-              <span
-                className="absolute bottom-2 left-0 w-full h-3 -z-0"
-                style={{ backgroundColor: "#D4FF00" }}
-              ></span>
+              <span className="absolute bottom-2 left-0 -z-0 h-3 w-full rounded-full bg-[linear-gradient(90deg,rgba(209,0,255,0.28),rgba(114,246,223,0.42))]"></span>
             </span>
           </h1>
           <p className="text-xl text-[var(--gbh-gray-text)]">
@@ -497,7 +488,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           </p>
         </div>
 
-        <div className="mb-10 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
+        <div className="mb-10 rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.95),rgba(243,233,249,0.76),rgba(227,255,249,0.68))] p-6 shadow-[0_16px_30px_rgba(70,28,172,0.14)]">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
             <div>
               <h2 className="text-2xl text-[var(--gbh-black-soft)]">
@@ -517,7 +508,6 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
               <Button
                 type="submit"
                 className="rounded-full"
-                style={{ backgroundColor: "var(--gbh-magenta)" }}
                 disabled={isLookupLoading}
               >
                 {isLookupLoading ? "Recherche..." : "Rechercher"}
@@ -536,7 +526,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           )}
 
           {lookupResult && (
-            <div className="mt-4 rounded-2xl bg-[var(--gbh-gray-ui)]/70 p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div className="mt-4 rounded-2xl border border-purple-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(238,227,248,0.65),rgba(228,255,250,0.7))] p-5 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-xs uppercase text-[var(--gbh-gray-text)]">
                   Référence
@@ -607,8 +597,8 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 key={label}
                 className={`flex items-center gap-3 rounded-2xl border px-4 py-3 ${
                   isActive
-                    ? "border-[var(--gbh-magenta)] bg-white shadow-md"
-                    : "border-transparent bg-white/70"
+                    ? "border-[var(--gbh-mint-deep)] bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] shadow-[0_12px_24px_rgba(93,32,177,0.15)]"
+                    : "border-purple-100 bg-white/80"
                 }`}
               >
                 <div
@@ -633,7 +623,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
           })}
         </div>
 
-        <div className="bg-white rounded-3xl shadow-xl p-8 md:p-10">
+        <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.96),rgba(245,236,252,0.78),rgba(230,255,250,0.66))] p-8 shadow-[0_24px_40px_rgba(67,26,154,0.16)] md:p-10">
           {step === 1 && (
             <div>
               <div className="flex items-center justify-between mb-6">
@@ -646,11 +636,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                   </p>
                 </div>
                 <Badge
-                  className="rounded-full"
-                  style={{
-                    backgroundColor: "var(--gbh-magenta-light)",
-                    color: "var(--gbh-magenta)",
-                  }}
+                  className="rounded-full border border-purple-200 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]"
                 >
                   {services.length} services
                 </Badge>
@@ -696,10 +682,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                           </p>
                         </div>
                         <div className="text-right">
-                          <div
-                            className="text-lg font-semibold"
-                            style={{ color: "var(--gbh-magenta)" }}
-                          >
+                          <div className="text-lg font-semibold text-[var(--gbh-violet-800)]">
                             {formatCurrency(service.price)}
                           </div>
                           <div className="text-xs text-[var(--gbh-gray-text)]">
@@ -822,7 +805,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 </div>
 
                 <div>
-                  <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                  <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(240,228,250,0.7),rgba(228,255,250,0.65))] p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <div className="text-sm text-[var(--gbh-gray-text)]">
@@ -832,13 +815,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                           {formatDateDisplay(selectedDate)}
                         </div>
                       </div>
-                      <Badge
-                        className="rounded-full"
-                        style={{
-                          backgroundColor: "var(--gbh-magenta-light)",
-                          color: "var(--gbh-magenta)",
-                        }}
-                      >
+                      <Badge className="rounded-full border border-purple-200 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] text-[var(--gbh-violet-900)]">
                         {selectedDate
                           ? `${availableSlots.length}/${fullSlots.length} créneaux`
                           : "Créneaux"}
@@ -991,7 +968,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                   </div>
                 </div>
 
-                <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.92),rgba(240,228,250,0.7),rgba(228,255,250,0.68))] p-6">
                   <h3 className="text-[var(--gbh-black-soft)] mb-4">Récapitulatif</h3>
                   <div className="space-y-3 text-sm text-[var(--gbh-gray-text)]">
                     <div>
@@ -1066,8 +1043,8 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                         key={option.value}
                         className={`flex items-start gap-4 rounded-3xl border-2 p-6 cursor-pointer transition-all ${
                           paymentMethod === option.value
-                            ? "border-[var(--gbh-magenta)] bg-[var(--gbh-magenta-light)]/40"
-                            : "border-transparent bg-[var(--gbh-gray-ui)]/60"
+                            ? "border-[var(--gbh-mint-deep)] bg-[linear-gradient(135deg,rgba(243,229,255,0.9),rgba(202,255,244,0.85))]"
+                            : "border-purple-100 bg-[var(--gbh-gray-ui)]/60"
                         }`}
                       >
                         <RadioGroupItem value={option.value} />
@@ -1084,7 +1061,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                   </RadioGroup>
                 </div>
 
-                <div className="rounded-3xl border border-gray-100 bg-[var(--gbh-gray-ui)]/70 p-6">
+                <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,rgba(255,255,255,0.92),rgba(240,228,250,0.7),rgba(228,255,250,0.68))] p-6">
                   <h3 className="text-[var(--gbh-black-soft)] mb-4">Résumé final</h3>
                   <div className="space-y-3 text-sm text-[var(--gbh-gray-text)]">
                     <div>
@@ -1164,7 +1141,6 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 onClick={() => setStep((prev) => Math.min(5, prev + 1))}
                 disabled={!canProceedFromStep(step)}
                 className="rounded-full shadow-md"
-                style={{ backgroundColor: "var(--gbh-magenta)" }}
               >
                 Continuer
               </Button>
@@ -1176,7 +1152,6 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 onClick={handleConfirm}
                 disabled={isSubmitting}
                 className="rounded-full shadow-md"
-                style={{ backgroundColor: "var(--gbh-magenta)" }}
               >
                 {isSubmitting ? "Traitement..." : "Confirmer le rendez-vous"}
               </Button>
@@ -1186,11 +1161,11 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
       </div>
       {isSubmitting && (
         <div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-black/30 px-4"
+          className="fixed inset-0 z-40 flex items-center justify-center bg-[radial-gradient(circle_at_30%_18%,rgba(114,246,223,0.18),transparent_35%),radial-gradient(circle_at_top,rgba(161,114,202,0.24),transparent_35%),rgba(22,10,45,0.56)] px-4"
           role="status"
           aria-live="polite"
         >
-          <div className="rounded-3xl bg-white px-6 py-5 shadow-2xl flex items-center gap-4">
+          <div className="flex items-center gap-4 rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,#ffffff,#f4ebff,#e5fff8)] px-6 py-5 shadow-2xl">
             <div className="h-10 w-10 rounded-full border-4 border-[var(--gbh-magenta-light)] border-t-[var(--gbh-magenta)] animate-spin"></div>
             <div>
               <p className="text-sm text-[var(--gbh-gray-text)]">
@@ -1205,25 +1180,19 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
       )}
       {confirmation && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[radial-gradient(circle_at_top,rgba(161,114,202,0.25),transparent_35%),radial-gradient(circle_at_18%_88%,rgba(114,246,223,0.2),transparent_36%),rgba(22,10,45,0.64)] px-4 py-8"
           role="dialog"
           aria-modal="true"
           aria-label="Rendez-vous réservé"
           onClick={() => setConfirmation(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
+            className="w-full max-w-2xl rounded-3xl border border-purple-200 bg-[linear-gradient(145deg,#ffffff,#f4ebff,#e5fff8)] shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-purple-200 px-8 py-6">
               <div>
-                <div
-                  className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{
-                    backgroundColor: "var(--gbh-magenta-light)",
-                    color: "var(--gbh-magenta)",
-                  }}
-                >
+                <div className="inline-flex items-center gap-2 rounded-full border border-purple-200 bg-[linear-gradient(135deg,#f3e5ff,#dcc6ff,#cafff4)] px-3 py-1 text-xs font-semibold text-[var(--gbh-violet-900)]">
                   ✅ Rendez-vous réservé
                 </div>
                 <h3 className="mt-3 text-2xl text-[var(--gbh-black-soft)]">
@@ -1296,7 +1265,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
             </div>
 
             <div className="px-8 pb-8">
-              <div className="rounded-2xl bg-[var(--gbh-gray-ui)]/70 p-4 text-sm text-[var(--gbh-gray-text)]">
+              <div className="rounded-2xl border border-purple-100 bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(240,228,250,0.7),rgba(228,255,250,0.68))] p-4 text-sm text-[var(--gbh-gray-text)]">
                 Nous avons bien enregistré vos coordonnées ({confirmation.contact.name},{" "}
                 {confirmation.contact.email}, {confirmation.contact.phone}). Nous vous
                 contacterons avant le rendez-vous.
@@ -1305,7 +1274,6 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 <Button
                   type="button"
                   className="rounded-full shadow-md"
-                  style={{ backgroundColor: "var(--gbh-magenta)" }}
                   onClick={() => {
                     setConfirmation(null);
                     onNavigate("home");
@@ -1316,8 +1284,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-full"
-                  style={{ borderColor: "var(--gbh-magenta)", color: "var(--gbh-magenta)" }}
+                  className="rounded-full border-purple-400 bg-white/70 text-purple-900 hover:border-[var(--gbh-mint-deep)] hover:bg-[var(--gbh-mint-soft)]"
                   onClick={() => onNavigate("contact")}
                 >
                   Besoin d'aide ?
