@@ -16,6 +16,7 @@ import { PrivacyPolicyPage } from "./PrivacyPolicyPage";
 import { TermsPage } from "./TermsPage";
 import { FloatingWhatsAppButton } from "./FloatingWhatsAppButton";
 import { StickyRfpCta } from "./StickyRfpCta";
+import { PushNotificationsManager } from "./PushNotificationsManager";
 
 type Page =
   | "home"
@@ -104,6 +105,7 @@ export default function App() {
       <Footer onNavigate={handleNavigate} />
       <StickyRfpCta />
       <FloatingWhatsAppButton context={currentPage} />
+      <PushNotificationsManager />
     </div>
   );
 }
