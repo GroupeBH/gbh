@@ -1,14 +1,11 @@
 ﻿import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
+import Link from "next/link";
 import { useState } from "react";
 import { useCreateContactMutation } from "../store/api";
 
 const offices = [
-  {
-    name: "Bureau Socimat",
-    address: "Avenue A Adama, vers Socimat, Kinshasa, RDC",
-  },
   {
     name: "Bureau Sendwe",
     address: "Boulevard Sendwe, immeuble ADI Construct, Kinshasa, RDC",
@@ -64,7 +61,6 @@ export function ContactPage() {
                 </div>
                 <div>
                   <h3 className="mb-1 text-[var(--gbh-black-soft)]">Adresse</h3>
-                  <p className="text-[var(--gbh-gray-text)]">Avenue A Adama, vers Socimat</p>
                   <p className="text-[var(--gbh-gray-text)]">
                     Boulevard Sendwe, immeuble ADI Construct
                   </p>
@@ -119,6 +115,25 @@ export function ContactPage() {
                   <span className="font-semibold">Fermé</span>
                 </div>
               </div>
+            </div>
+
+            <div className="mt-8 rounded-2xl border border-purple-200 bg-[linear-gradient(135deg,#f7f0ff,#eafffb)] p-6">
+              <p className="text-xs uppercase tracking-[0.2em] text-purple-600">
+                Projets numeriques
+              </p>
+              <h3 className="mt-3 text-[var(--gbh-black-soft)]">
+                Parlons aussi de Uty, Zwanga, Afya ou BPAC.
+              </h3>
+              <p className="mt-2 text-sm text-[var(--gbh-gray-text)]">
+                GBH promeut des startups numeriques et peut cadrer les echanges
+                autour d&apos;un partenariat, d&apos;un MVP ou d&apos;une mise en marche.
+              </p>
+              <Link
+                href="/#projets-numeriques"
+                className="mt-5 inline-flex rounded-full border border-purple-300 bg-white/80 px-4 py-2 text-sm font-semibold text-purple-900 transition-colors hover:border-[var(--gbh-mint-deep)]"
+              >
+                Voir les projets numeriques
+              </Link>
             </div>
 
             <div className="mt-8">

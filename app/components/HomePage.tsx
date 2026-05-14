@@ -14,6 +14,7 @@ import { LogosRibbon } from "./LogosRibbon";
 import { ReferencesPreview } from "./ReferencesPreview";
 import { RevealOnScroll } from "./RevealOnScroll";
 import { TrustComplianceBlock } from "./TrustComplianceBlock";
+import { DigitalProjectsShowcase } from "./DigitalProjectsShowcase";
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -67,6 +68,8 @@ export function HomePage({ onNavigate }: HomePageProps) {
       <RevealOnScroll delayMs={50}>
         <BookingLookup />
       </RevealOnScroll>
+
+      <DigitalProjectsShowcase onNavigate={onNavigate} />
 
       <RevealOnScroll delayMs={70}>
         <DomainsSection onBookAppointment={() => onNavigate("rdv")} />
@@ -193,5 +196,3 @@ export function HomePage({ onNavigate }: HomePageProps) {
     </div>
   );
 }
-
-

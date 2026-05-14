@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { RouteShell } from "../components/RouteShell";
 import { Button } from "../components/ui/button";
+import { digitalProjects } from "../lib/digital-projects";
 import {
   companyHistory,
   companyMission,
@@ -30,7 +31,8 @@ export default function AboutPage() {
           </h1>
           <p className="mt-5 max-w-3xl text-lg text-purple-700">
             GBH evolue avec une logique simple: transformer les besoins en actions mesurables,
-            pour les particuliers comme pour les grands comptes.
+            pour les particuliers, les grands comptes et les startups numeriques que le groupe
+            promeut.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
             <Link href="/organisations">
@@ -45,6 +47,15 @@ export default function AboutPage() {
                 className="rounded-full border-purple-400 bg-white/70 text-purple-900 hover:border-[var(--gbh-mint-deep)] hover:bg-[var(--gbh-mint-soft)]"
               >
                 Voir nos references
+              </Button>
+            </Link>
+            <Link href="/#projets-numeriques">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="rounded-full"
+              >
+                Voir les projets numeriques
               </Button>
             </Link>
           </div>
@@ -104,6 +115,42 @@ export default function AboutPage() {
         </div>
       </section>
 
+      <section className="bg-[linear-gradient(180deg,#ffffff,#ecfffa)] py-14 md:py-18">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-purple-600">
+                Innovation
+              </p>
+              <h2 className="mt-3 text-3xl text-purple-900 md:text-4xl">
+                GBH est aussi promoteur de projets numeriques.
+              </h2>
+              <p className="mt-4 text-purple-700">
+                Le groupe accompagne des initiatives locales dans le commerce,
+                la mobilite, la sante et la finance numerique.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {digitalProjects.map((project) => (
+                <Link
+                  key={project.slug}
+                  href={project.route}
+                  target={project.isExternal ? "_blank" : undefined}
+                  rel={project.isExternal ? "noreferrer" : undefined}
+                  className="rounded-2xl border border-purple-200 bg-white/85 p-5 shadow-[0_12px_24px_rgba(74,32,173,0.1)] transition-all hover:-translate-y-1 hover:border-[var(--gbh-mint-deep)]"
+                >
+                  <p className="text-xs uppercase tracking-[0.16em] text-[var(--gbh-gray-text)]">
+                    {project.category}
+                  </p>
+                  <h3 className="mt-2 text-xl text-purple-900">{project.name}</h3>
+                  <p className="mt-2 text-sm text-purple-700">{project.status}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[linear-gradient(180deg,#f8f3ff,#ecfffa,#f2e9ff)] py-14 md:py-18">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
@@ -135,4 +182,3 @@ export default function AboutPage() {
     </RouteShell>
   );
 }
-

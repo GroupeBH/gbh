@@ -14,6 +14,7 @@ import {
   type Appointment,
   type Service,
 } from "../store/api";
+import { getPushTokenIfAvailable } from "../lib/firebase-messaging";
 
 interface RdvPageProps {
   onNavigate: (page: string) => void;
@@ -416,6 +417,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
     }
 
     try {
+      const deviceToken = await getPushTokenIfAvailable();
       const appointment = await createAppointment({
         serviceId: selectedService.id,
         name: contactInfo.name,
@@ -426,6 +428,7 @@ export function RdvPage({ onNavigate }: RdvPageProps) {
         time: selectedTime,
         paymentMethod,
         price: selectedService.price,
+        ...(deviceToken ? { deviceToken } : {}),
       }).unwrap();
 
       const appointmentId = appointment.id || appointment._id || "";

@@ -8,6 +8,11 @@ type CreateAppointmentResponse = {
   availableSlots?: string[];
 };
 
+type CreateAppointmentPayload = Partial<Appointment> & {
+  serviceId: string;
+  deviceToken?: string;
+};
+
 export const appointmentsApi = createApi({
   reducerPath: "appointmentsApi",
   baseQuery,
@@ -15,7 +20,7 @@ export const appointmentsApi = createApi({
   endpoints: (builder) => ({
     createAppointment: builder.mutation<
       Appointment,
-      Partial<Appointment> & { serviceId: string }
+      CreateAppointmentPayload
     >({
       query: (body) => ({
         url: "appointments",

@@ -13,10 +13,18 @@ type FooterLink =
 const quickLinks: FooterLink[] = [
   { label: "Accueil", kind: "hash", value: "home" },
   { label: "A propos", kind: "path", value: "/a-propos" },
+  { label: "Projets numeriques", kind: "path", value: "/#projets-numeriques" },
   { label: "Plateforme RDV", kind: "hash", value: "rdv" },
   { label: "Domaines", kind: "hash", value: "domaines" },
   { label: "References", kind: "path", value: "/references" },
   { label: "Consultation B2B", kind: "path", value: "/organisations" },
+];
+
+const projectLinks: FooterLink[] = [
+  { label: "Uty", kind: "path", value: "/projets/uty" },
+  { label: "Afya", kind: "path", value: "/projets/afya" },
+  { label: "BPAC", kind: "path", value: "/projets/bpac" },
+  { label: "Zwanga", kind: "path", value: "https://zwnga-app.com" },
 ];
 
 const infoLinks: FooterLink[] = [
@@ -68,8 +76,8 @@ export function Footer({ onNavigate }: FooterProps) {
               </div>
             </div>
             <p className="text-sm text-purple-100/90 leading-relaxed">
-              Partenaire multiservices pour particuliers et organisations en RDC, avec
-              une execution orientee resultat.
+              Partenaire multiservices en RDC et promoteur de projets numeriques
+              comme Uty, Zwanga, Afya et BPAC.
             </p>
           </div>
 
@@ -77,8 +85,6 @@ export function Footer({ onNavigate }: FooterProps) {
             <h4 className="text-lg font-semibold mb-4">Coordonnees</h4>
             <div className="space-y-3 text-sm text-purple-100/90">
               <p>
-                Avenue A Adama, vers Socimat
-                <br />
                 Boulevard Sendwe, immeuble ADI Construct
                 <br />
                 Kinshasa, RDC
@@ -105,11 +111,18 @@ export function Footer({ onNavigate }: FooterProps) {
           </div>
 
           <div>
-            <h4 className="text-lg font-semibold mb-4">Confiance</h4>
+            <h4 className="text-lg font-semibold mb-4">Projets numeriques</h4>
             <div className="space-y-2 text-sm text-purple-100/90">
-              <p>Confidentialite des informations clients</p>
-              <p>Reporting avancement structure</p>
-              <p>Approche contractuelle B2B</p>
+              {projectLinks.map((item) => (
+                <button
+                  key={`${item.kind}-${item.value}`}
+                  type="button"
+                  onClick={() => navigate(item)}
+                  className="block text-left transition-colors hover:text-cyan-200"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
             <div className="mt-5 border-t border-purple-300/25 pt-5">
               {infoLinks.map((item) => (

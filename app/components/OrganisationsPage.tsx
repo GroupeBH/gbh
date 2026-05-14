@@ -20,7 +20,7 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
           </h1>
           <p className="mt-5 text-lg text-purple-700 max-w-3xl">
             Cette section est orientee grands comptes: consultation B2B, gouvernance
-            intervention, et pilotage operationnel.
+            intervention, pilotage operationnel et cadrage de projets numeriques.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Button
@@ -34,11 +34,36 @@ export function OrganisationsPage({ onNavigate }: OrganisationsPageProps) {
               Lancer une consultation B2B
             </Button>
             <Button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.href = "/#projets-numeriques";
+                }
+              }}
+              variant="outline"
+              className="rounded-full border-purple-400 bg-white/70 text-purple-900"
+            >
+              Voir les projets numeriques
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-purple-200/60 bg-white py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(135deg,#f7f0ff,#eafffb)] p-6 md:p-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-purple-600">
+              Projets numeriques GBH
+            </p>
+            <h2 className="mt-3 text-2xl text-purple-900 md:text-3xl">
+              Uty, Zwanga, Afya et BPAC montrent notre capacite a cadrer des
+              plateformes utiles au marche congolais.
+            </h2>
+            <Button
               onClick={() => onNavigate("rdv")}
               variant="secondary"
-              className="rounded-full"
+              className="mt-6 rounded-full"
             >
-              Prendre rendez-vous
+              Discuter d&apos;un projet numerique
             </Button>
           </div>
         </div>
