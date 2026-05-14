@@ -72,7 +72,7 @@ export const digitalProjects: DigitalProject[] = [
       "Zwanga connecte conducteurs et passagers autour de trajets communs afin de reduire les couts, ameliorer l'accessibilite et fluidifier les deplacements.",
     audience:
       "Voyageurs, conducteurs et communautes cherchant une alternative organisee aux transports traditionnels.",
-    route: "https://zwnga-app.com",
+    route: "https://zwanga-app.com",
     isExternal: true,
     accent: "#0f9f6e",
     surface: "from-emerald-50 via-white to-lime-50",
@@ -88,7 +88,7 @@ export const digitalProjects: DigitalProject[] = [
       "Suivi des demandes",
       "Paiements et communication autour du trajet",
     ],
-    roadmap: ["Acces direct sur zwnga-app.com"],
+    roadmap: ["Acces direct sur zwanga-app.com"],
     proofPoints: [
       { label: "Secteur", value: "mobilite" },
       { label: "Modele", value: "covoiturage" },
