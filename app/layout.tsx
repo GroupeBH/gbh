@@ -18,7 +18,7 @@ const headingFont = Sora({
 export const metadata: Metadata = {
   title: "Groupe B-Holding Sarl",
   description:
-    "Entreprise multiservices en RDC : conseil, intelligence, numérique, fourniture et accompagnement sur mesure.",
+    "Entreprise multiservices en RDC et promoteur de projets numeriques comme Uty, Zwanga, Afya et BPAC.",
 };
 
 export default function RootLayout({

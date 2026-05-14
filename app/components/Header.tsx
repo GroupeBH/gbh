@@ -24,18 +24,18 @@ type MenuItem =
 
 const menuItems: MenuItem[] = [
   { label: "Accueil", kind: "hash", value: "home" },
-  { label: "A propos", kind: "path", value: "/a-propos", activeOn: "a-propos" },
+  { label: "A propos", kind: "path", value: "/about", activeOn: "about" },
+  {
+    label: "Projets numeriques",
+    kind: "path",
+    value: "/#projets-numeriques",
+    activeOn: "projets-numeriques",
+  },
   // { label: "Particuliers", kind: "hash", value: "particuliers" },
   // { label: "Organisations", kind: "hash", value: "organisations" },
   { label: "Domaines", kind: "hash", value: "domaines" },
   { label: "References", kind: "path", value: "/references", activeOn: "references" },
   // { label: "Plateforme RDV", kind: "hash", value: "rdv" },
-  {
-    label: "Etudes de cas",
-    kind: "path",
-    value: "/etudes-de-cas/anapi-training-wave",
-    activeOn: "etudes-de-cas",
-  },
 ];
 
 const navigateToPath = (path: string) => {

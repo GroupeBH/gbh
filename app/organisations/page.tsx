@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { DomainsSection } from "../components/DomainsSection";
 import { RevealOnScroll } from "../components/RevealOnScroll";
 import { RFPForm } from "../components/RFPForm";
@@ -28,8 +29,31 @@ export default function OrganisationsRoutePage() {
           </h1>
           <p className="mt-5 text-lg text-purple-700 max-w-3xl">
             Cette page est dediee aux consultations des grands comptes:
-            perimetre, delais, budget indicatif et niveau de service attendu.
+            perimetre, delais, budget indicatif, niveau de service attendu et
+            cadrage de projets numeriques.
           </p>
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <Link
+              href="/#projets-numeriques"
+              className="inline-flex h-12 items-center justify-center rounded-full border-2 border-purple-300 bg-white/80 px-6 text-base font-semibold text-[var(--gbh-violet-800)] transition-all hover:-translate-y-0.5 hover:border-[var(--gbh-violet-500)]"
+            >
+              Voir les projets numeriques
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-purple-200/60 bg-white py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-purple-200 bg-[linear-gradient(135deg,#f7f0ff,#eafffb)] p-6 md:p-8">
+            <p className="text-xs uppercase tracking-[0.2em] text-purple-600">
+              Projets numeriques GBH
+            </p>
+            <h2 className="mt-3 text-2xl text-purple-900 md:text-3xl">
+              Uty, Zwanga, Afya et BPAC montrent notre capacite a cadrer des
+              plateformes utiles au marche congolais.
+            </h2>
+          </div>
         </div>
       </section>
 

@@ -41,7 +41,6 @@ export function LegalNoticePage({ onNavigate }: LegalNoticePageProps) {
                 Bureaux
               </h2>
               <ul className="list-disc pl-6 space-y-1">
-                <li>Avenue A Adama, vers Socimat, Kinshasa</li>
                 <li>Boulevard Sendwe, immeuble ADI Construct, Kinshasa</li>
               </ul>
             </section>

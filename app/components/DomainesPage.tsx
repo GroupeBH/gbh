@@ -1,5 +1,6 @@
 import { Button } from "./ui/button";
 import { DomainsSection } from "./DomainsSection";
+import { DigitalProjectsShowcase } from "./DigitalProjectsShowcase";
 
 interface DomainesPageProps {
   onNavigate: (page: string) => void;
@@ -12,13 +13,17 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-18 md:py-22">
           <h1 className="text-4xl md:text-5xl text-purple-900">Domaines expertise GBH</h1>
           <p className="mt-5 text-lg text-purple-700 max-w-3xl">
-            Une section robuste qui reste utilisable meme en cas d&apos;indisponibilite API.
+            En plus de nos services traditionnels, GBH promeut activement des
+            startups numeriques comme Uty, Zwanga, Afya et BPAC, un projet de
+            banque numerique par les Congolais pour les Congolais.
           </p>
         </div>
       </section>
 
+      <DigitalProjectsShowcase onNavigate={onNavigate} />
+
       <DomainsSection
-        title="Nos domaines"
+        title="Nos domaines de services traditionnels"
         subtitle="Explorez les capacites disponibles pour les missions B2B et les besoins B2C."
         onBookAppointment={() => onNavigate("rdv")}
       />
@@ -56,4 +61,3 @@ export function DomainesPage({ onNavigate }: DomainesPageProps) {
     </div>
   );
 }
-

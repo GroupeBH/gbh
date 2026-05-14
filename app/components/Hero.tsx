@@ -6,6 +6,11 @@ type HeroProps = {
 };
 
 export function Hero({ onRequestProposal, onBookAppointment }: HeroProps) {
+  const goToDigitalProjects = () => {
+    if (typeof window === "undefined") return;
+    window.location.href = "/#projets-numeriques";
+  };
+
   return (
     <section className="relative overflow-hidden border-b border-purple-200/70 bg-[linear-gradient(140deg,#fff2ff_0%,#f6eeff_36%,#e8fffa_70%,#efd2ff_100%)]">
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(123,51,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(123,51,255,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
@@ -21,19 +26,27 @@ export function Hero({ onRequestProposal, onBookAppointment }: HeroProps) {
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
           <div>
             <p className="inline-flex rounded-full border border-purple-300 bg-white/70 px-4 py-2 text-xs font-semibold tracking-[0.22em] text-purple-700 uppercase">
-              Premium B2B + B2C
+              Services + startups numeriques
             </p>
             <h1 className="mt-6 text-4xl md:text-6xl text-[var(--gbh-violet-900)] leading-tight">
               Transformez vos besoins en execution mesurable.
             </h1>
             <p className="mt-6 text-lg text-[var(--gbh-gray-text)] max-w-2xl">
-              Une plateforme multiservices avec un cadre B2B plus convaincant:
-              proposition claire, execution rigoureuse, reporting continu.
+              Groupe B-Holding combine services B2B, execution terrain et promotion
+              de startups numeriques comme Uty, Zwanga, Afya et BPAC.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
+              {/* <Button
+                onClick={goToDigitalProjects}
+                size="lg"
+                className="rounded-full px-8"
+              >
+                Voir les projets numeriques
+              </Button> */}
               <Button
                 onClick={onRequestProposal}
                 size="lg"
+                variant="secondary"
                 className="rounded-full px-8"
               >
                 Lancer une consultation B2B
@@ -41,7 +54,7 @@ export function Hero({ onRequestProposal, onBookAppointment }: HeroProps) {
               <Button
                 onClick={onBookAppointment}
                 size="lg"
-                variant="secondary"
+                variant="outline"
                 className="rounded-full px-8"
               >
                 Prendre rendez-vous
@@ -55,23 +68,23 @@ export function Hero({ onRequestProposal, onBookAppointment }: HeroProps) {
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <article className="rounded-2xl bg-[linear-gradient(135deg,#5b1db4,#b34cff,#30d2bd)] p-5 text-white shadow-[0_10px_24px_rgba(100,37,196,0.42)]">
                 <p className="text-3xl font-semibold">4</p>
-                <p className="text-sm text-white/85">Etapes de delivery standardisees</p>
+                <p className="text-sm text-white/85">Startups numeriques mises en avant</p>
               </article>
               <article className="rounded-2xl border border-purple-200 bg-white p-5">
-                <p className="text-3xl font-semibold text-purple-800">B2B</p>
-                <p className="text-sm text-purple-700">Focalisation grands comptes</p>
+                <p className="text-3xl font-semibold text-purple-800">BPAC</p>
+                <p className="text-sm text-purple-700">Banque numerique en conception</p>
               </article>
               <article className="rounded-2xl border border-purple-200 bg-[linear-gradient(145deg,rgba(248,236,255,0.95),rgba(228,255,250,0.88))] p-5">
                 <p className="text-sm uppercase tracking-[0.18em] text-purple-600">
-                  Confidentialite
+                  Uty + Afya
                 </p>
-                <p className="mt-2 text-purple-900">Protection stricte des informations client.</p>
+                <p className="mt-2 text-purple-900">Commerce numerique et sante connectee.</p>
               </article>
               <article className="rounded-2xl border border-purple-200 bg-[linear-gradient(145deg,rgba(249,237,255,0.95),rgba(229,255,251,0.84))] p-5">
                 <p className="text-sm uppercase tracking-[0.18em] text-purple-600">
-                  Reporting
+                  Zwanga
                 </p>
-                <p className="mt-2 text-purple-900">Visibilite avancement a chaque jalon.</p>
+                <p className="mt-2 text-purple-900">Mobilite partagee via application dediee.</p>
               </article>
             </div>
           </div>
