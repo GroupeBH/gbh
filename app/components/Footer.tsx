@@ -24,7 +24,7 @@ const projectLinks: FooterLink[] = [
   { label: "Uty", kind: "path", value: "/projets/uty" },
   { label: "Afya", kind: "path", value: "/projets/afya" },
   { label: "BPAC", kind: "path", value: "/projets/bpac" },
-  { label: "Zwanga", kind: "path", value: "https://zwnga-app.com" },
+  { label: "Zwanga", kind: "path", value: "https://zwanga-app.com" },
 ];
 
 const infoLinks: FooterLink[] = [
